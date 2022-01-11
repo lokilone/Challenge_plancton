@@ -6,11 +6,11 @@ import torch.nn as nn
 import os.path
 
 
-dataset_dir = os.path.join(os.path.expanduser("~"), 'Datasets', 'FashionMNIST')
+dataset_dir = os.path.join(os.path.expanduser("~"), 'Datasets', 'NomDuFichier')
 valid_ratio = 0.2  #
 
 # Load the dataset for the training/validation sets
-train_valid_dataset = torchvision.datasets.FashionMNIST(root=dataset_dir,
+train_valid_dataset = torchvision.datasets.NomDuFichier(root=dataset_dir,
                                            train=True,
                                            transform= None, #transforms.ToTensor(),
                                            download=True)
@@ -22,7 +22,7 @@ train_dataset, valid_dataset = torch.utils.data.dataset.random_split(train_valid
 
 
 # Load the test set
-test_dataset = torchvision.datasets.FashionMNIST(root=dataset_dir,
+test_dataset = torchvision.datasets.NomDuFichier(root=dataset_dir,
                                                  transform= None, #transforms.ToTensor(),
                                                  train=False)
                                                  
