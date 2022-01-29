@@ -29,7 +29,7 @@ greyscale = torchvision.transforms.Grayscale(num_output_channels=1)
 
 # Compose transforms
 composed_transforms = torchvision.transforms.Compose([centercrop, greyscale,
-                torchvision.transforms.ToTensor()])
+                                                      torchvision.transforms.ToTensor()])
 
 # Create transformer class
 
@@ -73,15 +73,15 @@ batch_size = 64
 
 # training loader
 train_loader = torch.utils.data.DataLoader(dataset=train_dataset,
-                                            batch_size=batch_size,
-                                            num_workers=num_workers,
-                                            shuffle=True)
+                                           batch_size=batch_size,
+                                           num_workers=num_workers,
+                                           shuffle=True)
 
 # validation loader
 valid_loader = torch.utils.data.DataLoader(dataset=valid_dataset,
-                                            batch_size=batch_size,
-                                            num_workers=num_workers,
-                                            shuffle=True)
+                                           batch_size=batch_size,
+                                           num_workers=num_workers,
+                                           shuffle=True)
 
 # Data Inspect
 print("The train set contains {} images, in {} batches".format(
@@ -116,15 +116,15 @@ plt.show()
 # A convolutional base block
 def conv_relu_maxpool(cin, cout, csize, cstride, cpad, msize, mstride, mpad):
     return [nn.Conv2d(cin, cout, csize, cstride, cpad),
-        nn.ReLu(inplace=True),
-        nn.MaxPool2d(msize, mstride, mpad)]
+            nn.ReLu(inplace=True),
+            nn.MaxPool2d(msize, mstride, mpad)]
 
 # A linear base block
 
 
 def linear_relu(dim_in, dim_out):
     return [nn.Linear(dim_in, dim_out),
-                nn.Relu(inplace=True)]
+            nn.Relu(inplace=True)]
 
 # Compute convolution output
 
@@ -175,7 +175,8 @@ class F1_Loss(nn.Module):
 f_loss = F1_Loss()
 
 # Test loss
-dummy_loss = f_loss(torch.Tensor([[-100, 10, 8]]), torch.LongTensor([1])))  # f1 test
+dummy_loss = f_loss(torch.Tensor(
+    [[-100, 10, 8]]), torch.LongTensor([1]))  # f1 test
 print("on calcule une loss f1 de : {}".format(dummy_loss))
 
 
@@ -186,50 +187,51 @@ class convClassifier(nn.Module):
 
     def __init__(self, num_classes):
         super(convClassifier, self).__init__()
-        self.conv_model=nn.sequential(*conv_relu_maxpool(cin=1, cout=4,
-                       csize=3, cstride=1, cpad=1,
-                       msize=2, mstride=2, mpad=0),
-                    *conv_relu_maxpool(cin=1, cout=8,
-                       csize=3, cstride=1, cpad=1,
-                       msize=2, mstride=2, mpad=0),
-                       *conv_relu_maxpool(cin=1, cout=16,
-                       csize=3, cstride=1, cpad=1,
-                       msize=2, mstride=2, mpad=0),
-                        *conv_relu_maxpool(cin=1, cout=16,
-                       csize=3, cstride=1, cpad=1,
-                       msize=2, mstride=2, mpad=0),
-                        *conv_relu_maxpool(cin=1, cout=32,
-                       csize=3, cstride=1, cpad=1,
-                       msize=2, mstride=2, mpad=0),
-                        *conv_relu_maxpool(cin=1, cout=64,
-                       csize=3, cstride=1, cpad=1,
-                       msize=2, mstride=2, mpad=0),
-                        *conv_relu_maxpool(cin=1, cout=64,
-                       csize=3, cstride=1, cpad=1,
-                       msize=2, mstride=2, mpad=0))
+        self.conv_model = nn.sequential(*conv_relu_maxpool(cin=1, cout=4,
+                                                           csize=3, cstride=1, cpad=1,
+                                                           msize=2, mstride=2, mpad=0),
+                                        *conv_relu_maxpool(cin=1, cout=8,
+                                                           csize=3, cstride=1, cpad=1,
+                                                           msize=2, mstride=2, mpad=0),
+                                        *conv_relu_maxpool(cin=1, cout=16,
+                                                           csize=3, cstride=1, cpad=1,
+                                                           msize=2, mstride=2, mpad=0),
+                                        *conv_relu_maxpool(cin=1, cout=16,
+                                                           csize=3, cstride=1, cpad=1,
+                                                           msize=2, mstride=2, mpad=0),
+                                        *conv_relu_maxpool(cin=1, cout=32,
+                                                           csize=3, cstride=1, cpad=1,
+                                                           msize=2, mstride=2, mpad=0),
+                                        *conv_relu_maxpool(cin=1, cout=64,
+                                                           csize=3, cstride=1, cpad=1,
+                                                           msize=2, mstride=2, mpad=0),
+                                        *conv_relu_maxpool(cin=1, cout=64,
+                                                           csize=3, cstride=1, cpad=1,
+                                                           msize=2, mstride=2, mpad=0))
 
-        output_size=out_size(self.conv_model)
-        self.fc_model=nn.sequential(*linear_relu(output_size, 256),
-                                        nn.Linear(256, num_classes))
+        output_size = out_size(self.conv_model)
+        self.fc_model = nn.sequential(*linear_relu(output_size, 256),
+                                      nn.Linear(256, num_classes))
 
     def forward(self, x):
-        x=x.view(x.size[0], -1)
-        x=self.conv_model(x)
-        y=self.fc_model(x)
+        x = x.view(x.size[0], -1)
+        x = self.conv_model(x)
+        y = self.fc_model(x)
         return y
 
-model=convClassifier(num_classes = len(dataset.classes))
 
-use_gpu=torch.cuda.is_available()
+model = convClassifier(num_classes=len(dataset.classes))
+
+use_gpu = torch.cuda.is_available()
 if use_gpu:
-    device=torch.device('cuda')
+    device = torch.device('cuda')
 else:
-    device=torch.device('cpu')
+    device = torch.device('cpu')
 
 model.to(device)
 
 # Optimizer
-optimizer=torch.optim.Adam(model.parameters())
+optimizer = torch.optim.Adam(model.parameters())
 
 
 ################################
@@ -242,15 +244,15 @@ def train(model, loader, f_loss, optimizer, device):
     # enter train mode
     model.train()
 
-    N=0
-    tot_loss, correct=0.0, 0.0
+    N = 0
+    tot_loss, correct = 0.0, 0.0
 
     for i, (inputs, targets) in enumerate(loader):
-        inputs, targets=inputs.to(device), targets.to(device)
+        inputs, targets = inputs.to(device), targets.to(device)
 
         # Compute the forward pass through the network up to the loss
-        outputs=model(inputs)
-        loss=f_loss(outputs, targets)
+        outputs = model(inputs)
+        loss = f_loss(outputs, targets)
 
         # Backward and optimize
         optimizer.zero_grad()
@@ -264,13 +266,15 @@ def train(model, loader, f_loss, optimizer, device):
         tot_loss += inputs.shape[0] * f_loss(outputs, targets).item()
 
         # For the accuracy, we compute the labels for each input image
-        predicted_targets=outputs.argmax(dim = 1)
+        predicted_targets = outputs.argmax(dim=1)
         correct += (predicted_targets == targets).sum().item()
 
         print(" Training : Loss : {:.4f}, Acc : {:.4f}".format(
             tot_loss/N, correct/N))
 
 # Test
+
+
 def test(model, loader, f_loss, device):
 
     # We disable gradient computation
@@ -279,14 +283,14 @@ def test(model, loader, f_loss, device):
         # We enter evaluation mode
         model.eval()
 
-        N=0
-        tot_loss, correct=0.0, 0.0
+        N = 0
+        tot_loss, correct = 0.0, 0.0
 
         for i, (inputs, targets) in enumerate(loader):
-            inputs, targets=inputs.to(device), targets.to(device)
+            inputs, targets = inputs.to(device), targets.to(device)
 
             # Compute the forward pass, i.e. the scores for each input image
-            outputs=model(inputs)
+            outputs = model(inputs)
 
             # Accumulate the exact number of processed samples
             N += inputs.shape[0]
@@ -295,7 +299,7 @@ def test(model, loader, f_loss, device):
             tot_loss += inputs.shape[0] * f_loss(outputs, targets).item()
 
             # For the accuracy, we compute the labels for each input image
-            predicted_targets=outputs.argmax(dim = 1)
+            predicted_targets = outputs.argmax(dim=1)
             correct += (predicted_targets == targets).sum().item()
 
         return tot_loss/N, correct/N
@@ -306,37 +310,40 @@ def test(model, loader, f_loss, device):
 ###############################
 
 def generate_unique_logpath(logdir, raw_run_name):
-    i=0
+    i = 0
     while(True):
-        run_name=raw_run_name + "_" + str(i)
-        log_path=os.path.join(logdir, run_name)
+        run_name = raw_run_name + "_" + str(i)
+        log_path = os.path.join(logdir, run_name)
         if not os.path.isdir(log_path):
             return log_path
-        i=i + 1
+        i = i + 1
+
 
 # 1- create the logs directory if it does not exist
-top_logdir="./logs"
+top_logdir = "./logs"
 if not os.path.exists(top_logdir):
     os.mkdir(top_logdir)
 
-logdir=generate_unique_logpath(top_logdir, "run")
+logdir = generate_unique_logpath(top_logdir, "run")
 print("Logging to {}".format(logdir))
+
 
 class ModelCheckpoint:
 
     def __init__(self, filepath, model):
-        self.min_loss=None
-        self.filepath=filepath
-        self.model=model
+        self.min_loss = None
+        self.filepath = filepath
+        self.model = model
 
     def update(self, loss):
         if (self.min_loss is None) or (loss < self.min_loss):
             print("Saving a better model")
             torch.save(self.model.state_dict(), self.filepath)
-            self.min_loss=loss
+            self.min_loss = loss
+
 
 # Define the callback object
-model_checkpoint=ModelCheckpoint(logdir + "/best_model.pt", model)
+model_checkpoint = ModelCheckpoint(logdir + "/best_model.pt", model)
 
 
 ###############################
@@ -344,12 +351,12 @@ model_checkpoint=ModelCheckpoint(logdir + "/best_model.pt", model)
 ###############################
 if __name__ == '__main__':
 
-    logging.basicConfig(level = logging.INFO)
-    parser=argparse.ArgumentParser()
+    logging.basicConfig(level=logging.INFO)
+    parser = argparse.ArgumentParser()
 
     parser.add_argument(
         '--n_epochs',
-        type = int,
+        type=int,
         required=True
     )
 
@@ -365,7 +372,8 @@ for t in range(epochs):
     train(model, train_loader, f_loss, optimizer, device)
 
     val_loss, val_acc = test(model, valid_loader, f_loss, device)
-    print(" Validation : Loss : {:.4f}, Acc : {:.4f}".format(val_loss, val_acc))
+    print(" Validation : Loss : {:.4f}, Acc : {:.4f}".format(
+        val_loss, val_acc))
     model_checkpoint.update(val_loss)
 
 print('learned')
