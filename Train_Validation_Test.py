@@ -4,6 +4,9 @@ import csv
 from torch.nn.modules.module import _addindent
 from sklearn import metrics
 
+num_class = 86
+
+
 def train(model, loader, f_loss, optimizer, device, type):
     """
         Train a model for one epoch, iterating over the loader
@@ -78,6 +81,11 @@ def validation(model, loader, f_loss, device):
         model.eval()
         N = 0
         tot_loss, correct = 0.0, 0.0
+
+        dico_class = {}
+        for i in np.arange(num_class):
+            dico_class[i]=np.zeros(4)
+
         for i, (inputs, targets) in enumerate(loader):
 
             # We got a minibatch from the loader within inputs and targets
@@ -105,7 +113,18 @@ def validation(model, loader, f_loss, device):
             # we can compute the label by argmaxing directly the scores
             predicted_targets = outputs.argmax(dim=1)
             correct += (predicted_targets == targets).sum().item()
-        return tot_loss/N, correct/N
+
+            # Macro F1 
+            for i in dico_class.keys():
+                dico_class[i][0] += ((predicted_targets == i)&(targets == predicted_targets)).sum().item()
+                dico_class[i][1] += ((predicted_targets != i)&(predicted_targets != targets)).sum().item()
+                dico_class[i][2] += ((predicted_targets == i)&(targets != predicted_targets)).sum().item()
+                dico_class[i][3] += ((predicted_targets != i)&(predicted_targets == targets)).sum().item()
+
+        for i in dico_class.keys():
+            dico_class[i] = dico_class[i][0]/(dico_class[i][0] + 1/2 * (dico_class[i][1] + dico_class[i][2]))
+
+        return tot_loss/N, correct/N, np.mean(dico_class.values())
 
 def test(model, loader, device, num_classes):
     """
