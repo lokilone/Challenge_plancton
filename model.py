@@ -116,7 +116,7 @@ plt.show()
 # A convolutional base block
 def conv_relu_maxpool(cin, cout, csize, cstride, cpad, msize, mstride, mpad):
     return [nn.Conv2d(cin, cout, csize, cstride, cpad),
-            nn.ReLu(inplace=True),
+            nn.ReLU(inplace=True),
             nn.MaxPool2d(msize, mstride, mpad)]
 
 # A linear base block
@@ -124,17 +124,16 @@ def conv_relu_maxpool(cin, cout, csize, cstride, cpad, msize, mstride, mpad):
 
 def linear_relu(dim_in, dim_out):
     return [nn.Linear(dim_in, dim_out),
-            nn.Relu(inplace=True)]
+            nn.ReLU(inplace=True)]
 
 # Compute convolution output
 
-
 def out_size(conv_model):
-    dummy_output = conv_model(torch.zeros((1, 1, 300, 300)))
+    dummy_input = torch.zeros(1, 1, 300, 300)
+    dummy_output = conv_model(dummy_input)
     return np.prod(dummy_output.shape[1:])
 
 # Loss function (Adapté de Git)
-
 
 class F1_Loss(nn.Module):
     '''Calculate F1 score. Can work with gpu tensors
@@ -155,7 +154,7 @@ class F1_Loss(nn.Module):
         assert y_pred.ndim == 2
         assert y_true.ndim == 1
         y_true = nn.functional.one_hot(
-            y_true, -1).to(torch.float32)  # qui va à la place du -1
+            y_true, 86).to(torch.float32)  
         y_pred = nn.functional.softmax(y_pred, dim=1)
 
         tp = (y_true * y_pred).sum(dim=0).to(torch.float32)
@@ -174,10 +173,10 @@ class F1_Loss(nn.Module):
 # Init loss object
 f_loss = F1_Loss()
 
-# Test loss
+"""# Test loss
 dummy_loss = f_loss(torch.Tensor(
-    [[-100, 10, 8]]), torch.LongTensor([1]))  # f1 test
-print("on calcule une loss f1 de : {}".format(dummy_loss))
+    [[-100, 10, 8]]), torch.LongTensor([2]))  # f1 test
+print("on calcule une loss f1 de : {}".format(dummy_loss))"""
 
 
 ############################
@@ -187,35 +186,40 @@ class convClassifier(nn.Module):
 
     def __init__(self, num_classes):
         super(convClassifier, self).__init__()
-        self.conv_model = nn.sequential(*conv_relu_maxpool(cin=1, cout=4,
+        self.conv_model = nn.Sequential(*conv_relu_maxpool(cin=1, cout=4,
                                                            csize=3, cstride=1, cpad=1,
                                                            msize=2, mstride=2, mpad=0),
-                                        *conv_relu_maxpool(cin=1, cout=8,
+                                        *conv_relu_maxpool(cin=4, cout=8,
                                                            csize=3, cstride=1, cpad=1,
                                                            msize=2, mstride=2, mpad=0),
-                                        *conv_relu_maxpool(cin=1, cout=16,
+                                        *conv_relu_maxpool(cin=8, cout=16,
                                                            csize=3, cstride=1, cpad=1,
                                                            msize=2, mstride=2, mpad=0),
-                                        *conv_relu_maxpool(cin=1, cout=16,
+                                        *conv_relu_maxpool(cin=16, cout=16,
                                                            csize=3, cstride=1, cpad=1,
                                                            msize=2, mstride=2, mpad=0),
-                                        *conv_relu_maxpool(cin=1, cout=32,
+                                        *conv_relu_maxpool(cin=16, cout=32,
                                                            csize=3, cstride=1, cpad=1,
                                                            msize=2, mstride=2, mpad=0),
-                                        *conv_relu_maxpool(cin=1, cout=64,
+                                        *conv_relu_maxpool(cin=32, cout=64,
                                                            csize=3, cstride=1, cpad=1,
                                                            msize=2, mstride=2, mpad=0),
-                                        *conv_relu_maxpool(cin=1, cout=64,
+                                        *conv_relu_maxpool(cin=64, cout=64,
                                                            csize=3, cstride=1, cpad=1,
                                                            msize=2, mstride=2, mpad=0))
+        
+        print("initiated conv model")
 
         output_size = out_size(self.conv_model)
-        self.fc_model = nn.sequential(*linear_relu(output_size, 256),
+        print(output_size)
+
+        self.fc_model = nn.Sequential(*linear_relu(output_size, 256),
                                       nn.Linear(256, num_classes))
+        print("initiated linear model")
 
     def forward(self, x):
-        x = x.view(x.size[0], -1)
-        x = self.conv_model(x)
+        x = x.view(x.size(dim=0), 1, 300 ,300)
+        x = self.conv_model(x).view(x.size(dim=0),-1)
         y = self.fc_model(x)
         return y
 
@@ -240,6 +244,7 @@ optimizer = torch.optim.Adam(model.parameters())
 
 # One train step
 def train(model, loader, f_loss, optimizer, device):
+    print('entered train')
 
     # enter train mode
     model.train()
@@ -248,6 +253,7 @@ def train(model, loader, f_loss, optimizer, device):
     tot_loss, correct = 0.0, 0.0
 
     for i, (inputs, targets) in enumerate(loader):
+        print("train batch no. {}".format(i))
         inputs, targets = inputs.to(device), targets.to(device)
 
         # Compute the forward pass through the network up to the loss
@@ -276,6 +282,7 @@ def train(model, loader, f_loss, optimizer, device):
 
 
 def test(model, loader, f_loss, device):
+    print('entered test')
 
     # We disable gradient computation
     with torch.no_grad():
@@ -287,6 +294,7 @@ def test(model, loader, f_loss, device):
         tot_loss, correct = 0.0, 0.0
 
         for i, (inputs, targets) in enumerate(loader):
+            print("test batch no. {}".format(i))
             inputs, targets = inputs.to(device), targets.to(device)
 
             # Compute the forward pass, i.e. the scores for each input image
@@ -314,7 +322,7 @@ def generate_unique_logpath(logdir, raw_run_name):
     while(True):
         run_name = raw_run_name + "_" + str(i)
         log_path = os.path.join(logdir, run_name)
-        if not os.path.isdir(log_path):
+        if os.path.isdir(log_path):
             return log_path
         i = i + 1
 
@@ -350,7 +358,7 @@ model_checkpoint = ModelCheckpoint(logdir + "/best_model.pt", model)
 ##### Main learning run   #####
 ###############################
 if __name__ == '__main__':
-
+    """
     logging.basicConfig(level=logging.INFO)
     parser = argparse.ArgumentParser()
 
@@ -363,46 +371,47 @@ if __name__ == '__main__':
     print(sys.argv)
     args = parser.parse_args()
     eval(f"{args.command}(args)")
+    """
+    ##### learning loop #####
+    epochs = 15
 
-##### learning loop #####
-epochs = args[0]
+    for t in range(epochs):
+        print("epoch no. {}".format(t))
+        print("Epoch {}".format(t))
+        train(model, train_loader, f_loss, optimizer, device)
 
-for t in range(epochs):
-    print("Epoch {}".format(t))
-    train(model, train_loader, f_loss, optimizer, device)
+        val_loss, val_acc = test(model, valid_loader, f_loss, device)
+        print(" Validation : Loss : {:.4f}, Acc : {:.4f}".format(
+            val_loss, val_acc))
+        model_checkpoint.update(val_loss)
 
-    val_loss, val_acc = test(model, valid_loader, f_loss, device)
-    print(" Validation : Loss : {:.4f}, Acc : {:.4f}".format(
-        val_loss, val_acc))
-    model_checkpoint.update(val_loss)
+    print('learned')
 
-print('learned')
+    ##### Save a summary of the run #####
 
-##### Save a summary of the run #####
+    summary_file = open(logdir + "/summary.txt", 'w')
+    summary_text = """
 
-summary_file = open(logdir + "/summary.txt", 'w')
-summary_text = """
+    Executed command
+    ================
+    {}
 
-Executed command
-================
-{}
+    Dataset
+    =======
+    FashionMNIST
 
-Dataset
-=======
-FashionMNIST
+    Model summary
+    =============
+    {}
 
-Model summary
-=============
-{}
+    {} trainable parameters
 
-{} trainable parameters
+    Optimizer
+    ========
+    {}
 
-Optimizer
-========
-{}
+    """.format(" ".join(sys.argv), model, sum(p.numel() for p in model.parameters() if p.requires_grad), optimizer)
+    summary_file.write(summary_text)
+    summary_file.close()
 
-""".format(" ".join(sys.argv), model, sum(p.numel() for p in model.parameters() if p.requires_grad), optimizer)
-summary_file.write(summary_text)
-summary_file.close()
-
-print(summary_text)
+    print(summary_text)
