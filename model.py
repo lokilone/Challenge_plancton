@@ -9,6 +9,7 @@ import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 import torch.nn as nn
 import torch.nn.functional
+from torch.utils.tensorboard import SummaryWriter
 
 import numpy as np
 
@@ -22,16 +23,21 @@ params = {"padding": (300, 300)}
 
 # pad smaller images to desired size
 pad = torchvision.transforms.Pad(padding=params["padding"], fill=0)
-centercrop = torchvision.transforms.CenterCrop(
-    300)  # Crop images to be of same 300x300
+# Crop images to be of same 300x300
+centercrop = torchvision.transforms.CenterCrop(300)
 # Images are B/W but in 3 channels, we only need one
 greyscale = torchvision.transforms.Grayscale(num_output_channels=1)
+# Negative
+invert = torchvision.transforms.functional.invert()
+# Normalize data
+normalize = torchvision.transforms.Lambda(
+    lambda x: (x - mean_train_tensor)/std_train_tensor)
 
 # Compose transforms
-composed_transforms = torchvision.transforms.Compose([centercrop, greyscale,
+composed_transforms = torchvision.transforms.Compose([centercrop, greyscale, invert,
                                                       torchvision.transforms.ToTensor()])
 
-# Create transformer class
+# Create transformer class (currently unused, we transform on data loading)
 
 
 class DatasetTransformer(torch.utils.data.Dataset):
@@ -46,6 +52,32 @@ class DatasetTransformer(torch.utils.data.Dataset):
 
     def __len__(self):
         return len(self.base_dataset)
+
+# Average Std computing tool
+
+
+def compute_mean_std(loader):
+    # Compute the mean over minibatches
+    mean_img = None
+    for imgs, _ in loader:
+        if mean_img is None:
+            mean_img = torch.zeros_like(imgs[0])
+        mean_img += imgs.sum(dim=0)
+    mean_img /= len(loader.dataset)
+
+    # Compute the std over minibatches
+    std_img = torch.zeros_like(mean_img)
+    for imgs, _ in loader:
+        std_img += ((imgs - mean_img)**2).sum(dim=0)
+    std_img /= len(loader.dataset)
+    std_img = torch.sqrt(std_img)
+
+    # Set the variance of pixels with no variance to 1
+    # Because there is no variance
+    # these pixels will anyway have no impact on the final decision
+    std_img[std_img == 0] = 1
+
+    return mean_img, std_img
 
 
 ########################
@@ -82,6 +114,13 @@ valid_loader = torch.utils.data.DataLoader(dataset=valid_dataset,
                                            batch_size=batch_size,
                                            num_workers=num_workers,
                                            shuffle=True)
+
+# Compute avg and std for normalization
+mean_train_tensor, std_train_tensor = compute_mean_std(train_loader)
+
+# Normalization
+train_loader = normalize(train_loader)
+valid_loader = normalize(valid_loader)
 
 # Data Inspect
 print("The train set contains {} images, in {} batches".format(
@@ -128,12 +167,14 @@ def linear_relu(dim_in, dim_out):
 
 # Compute convolution output
 
+
 def out_size(conv_model):
     dummy_input = torch.zeros(1, 1, 300, 300)
     dummy_output = conv_model(dummy_input)
     return np.prod(dummy_output.shape[1:])
 
 # Loss function (Adapté de Git)
+
 
 class F1_Loss(nn.Module):
     '''Calculate F1 score. Can work with gpu tensors
@@ -154,7 +195,7 @@ class F1_Loss(nn.Module):
         assert y_pred.ndim == 2
         assert y_true.ndim == 1
         y_true = nn.functional.one_hot(
-            y_true, 86).to(torch.float32)  
+            y_true, 86).to(torch.float32)
         y_pred = nn.functional.softmax(y_pred, dim=1)
 
         tp = (y_true * y_pred).sum(dim=0).to(torch.float32)
@@ -177,6 +218,9 @@ f_loss = F1_Loss()
 dummy_loss = f_loss(torch.Tensor(
     [[-100, 10, 8]]), torch.LongTensor([2]))  # f1 test
 print("on calcule une loss f1 de : {}".format(dummy_loss))"""
+
+# Monitoring obejct
+tensorboard_writer = SummaryWriter(log_dir=logdir)
 
 
 ############################
@@ -207,7 +251,7 @@ class convClassifier(nn.Module):
                                         *conv_relu_maxpool(cin=64, cout=64,
                                                            csize=3, cstride=1, cpad=1,
                                                            msize=2, mstride=2, mpad=0))
-        
+
         print("initiated conv model")
 
         output_size = out_size(self.conv_model)
@@ -218,8 +262,8 @@ class convClassifier(nn.Module):
         print("initiated linear model")
 
     def forward(self, x):
-        x = x.view(x.size(dim=0), 1, 300 ,300)
-        x = self.conv_model(x).view(x.size(dim=0),-1)
+        x = x.view(x.size(dim=0), 1, 300, 300)
+        x = self.conv_model(x).view(x.size(dim=0), -1)
         y = self.fc_model(x)
         return y
 
@@ -277,6 +321,8 @@ def train(model, loader, f_loss, optimizer, device):
 
         print(" Training : Loss : {:.4f}, Acc : {:.4f}".format(
             tot_loss/N, correct/N))
+
+        return tot_loss/N, correct/N
 
 # Test
 
@@ -378,12 +424,19 @@ if __name__ == '__main__':
     for t in range(epochs):
         print("epoch no. {}".format(t))
         print("Epoch {}".format(t))
-        train(model, train_loader, f_loss, optimizer, device)
+        train_loss, train_acc = train(
+            model, train_loader, f_loss, optimizer, device)
 
         val_loss, val_acc = test(model, valid_loader, f_loss, device)
         print(" Validation : Loss : {:.4f}, Acc : {:.4f}".format(
             val_loss, val_acc))
         model_checkpoint.update(val_loss)
+
+        # Monitoring
+        tensorboard_writer.add_scalar('metrics/train_loss', train_loss, t)
+        tensorboard_writer.add_scalar('metrics/train_acc',  train_acc, t)
+        tensorboard_writer.add_scalar('metrics/val_loss', val_loss, t)
+        tensorboard_writer.add_scalar('metrics/val_acc',  val_acc, t)
 
     print('learned')
 
