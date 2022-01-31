@@ -18,11 +18,18 @@ centercrop = torchvision.transforms.CenterCrop(300)  # Crop images to be of same
 greyscale = torchvision.transforms.Grayscale(num_output_channels=1)
 # Negative
 invert = torchvision.transforms.functional.invert
+# Resize
+resize = torchvision.transforms.Resize((300,300))
 
+
+### Data Augmentation
+rotate = torchvision.transforms.RandomRotation((0, 360))
 
 
 # Compose transforms
-composed_transforms = torchvision.transforms.Compose([greyscale, invert, centercrop, torchvision.transforms.ToTensor()])
+#composed_transforms = torchvision.transforms.Compose([greyscale, invert, resize, torchvision.transforms.ToTensor(), rotate])
+composed_transforms = torch.nn.Sequential(greyscale, invert, resize, torchvision.transforms.ToTensor(), rotate)
+
 
 # Create transformer class
 class DatasetTransformer(torch.utils.data.Dataset):
@@ -43,11 +50,12 @@ class DatasetTransformer(torch.utils.data.Dataset):
 ##### Loading Data #####
 ########################
 print(os.path.exists("/mounts/Datasets1/ChallengeDeep/train/"))
-train_path = "/mounts/Datasets1/ChallengeDeep/train/"
 valid_ratio = 0.2
 
 # Load learning data
-train_path = "/mounts/Datasets1/ChallengeDeep/train/"
+#train_path = "/mounts/Datasets1/ChallengeDeep/train/"
+train_path = "/usr/users/gpusdi1/gpusdi1_49/Bureau/sample_train"
+
 print('data loading...')
 dataset = torchvision.datasets.ImageFolder(train_path, composed_transforms)
 print('data loaded')
@@ -58,6 +66,12 @@ nb_valid = len(dataset)-nb_train
 train_dataset, valid_dataset = torch.utils.data.dataset.random_split(dataset, [
                                                                      nb_train, nb_valid])
 print('data split')
+
+
+### Augmentation
+augmentation = torchvision.transforms.AutoAugment
+
+train_dataset = augmentation(train_dataset)
 
 ##### Generating Loaders #####
 num_workers = 4
@@ -85,15 +99,15 @@ print("The validation set contains {} images, in {} batches".format(
 #############################
 ##### Display Some data #####
 #############################
-n_samples = 10
+n_samples = 30
 
 class_names = dataset.classes
 imgs, labels = next(iter(train_loader))
 
-fig = plt.figure(figsize=(20, 5), facecolor='w')
-for i in range(n_samples):
-    ax = plt.subplot(1, n_samples, i+1)
-    plt.imshow(imgs[i, 0, :, :], vmin=0, vmax=1.0, cmap=cm.gray)
+fig = plt.figure(figsize=(30, 30), facecolor='w')
+for col in range(n_samples):
+    ax = plt.subplot(2, n_samples, col+1)
+    plt.imshow(imgs[col, 0, :, :], vmin=0, vmax=1.0, cmap=cm.gray)
     ax.set_title("{}".format(class_names[labels[0]]), fontsize=15)
     ax.get_xaxis().set_visible(False)
     ax.get_yaxis().set_visible(False)
