@@ -35,7 +35,7 @@ invert = torchvision.transforms.functional.invert
     lambda x: (x - mean_train_tensor)/std_train_tensor)"""
 
 # Compose transforms
-composed_transforms = torchvision.transforms.Compose([centercrop, greyscale, invert,
+composed_transforms = torchvision.transforms.Compose([greyscale, invert, centercrop,
                                                       torchvision.transforms.ToTensor()])
 
 # Create transformer class (currently unused, we transform on data loading)
@@ -325,10 +325,10 @@ def train(model, loader, f_loss, optimizer, device):
         predicted_targets = outputs.argmax(dim=1)
         correct += (predicted_targets == targets).sum().item()
 
-        print(" Training : Loss : {:.4f}, Acc : {:.4f}".format(
-            tot_loss/N, correct/N))
+    print(" Training : Loss : {:.4f}, Acc : {:.4f}".format(
+        tot_loss/N, correct/N))
 
-        return tot_loss/N, correct/N
+    return tot_loss/N, correct/N
 
 # Test
 
