@@ -124,12 +124,12 @@ valid_loader = torch.utils.data.DataLoader(dataset=valid_dataset,
                                            shuffle=True)
 
 # Compute avg and std for normalization
-"""mean_train_tensor, std_train_tensor = torch.float32(0.485), torch.float32(0.229)
+mean_train_tensor, std_train_tensor = compute_mean_std(train_loader)
 print("mean : {} std : {}".format(mean_train_tensor,std_train_tensor))
 
 # Normalization
-train_loader = normalize(train_loader)
-valid_loader = normalize(valid_loader)"""
+##train_loader = normalize(train_loader)
+#valid_loader = normalize(valid_loader)
 
 # Data Inspect
 print("The train set contains {} images, in {} batches".format(
@@ -229,7 +229,7 @@ dummy_loss = f_loss(torch.Tensor(
 print("on calcule une loss f1 de : {}".format(dummy_loss))"""
 
 # Monitoring obejct
-tensorboard_writer = SummaryWriter(log_dir="./logs/")
+tensorboard_writer = SummaryWriter(log_dir=logdir)
 
 
 ############################
@@ -428,7 +428,7 @@ if __name__ == '__main__':
     eval(f"{args.command}(args)")
     """
     ##### learning loop #####
-    epochs = 1
+    epochs = 15
 
     for t in range(epochs):
         print("epoch no. {}".format(t))
