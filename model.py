@@ -15,6 +15,7 @@ import numpy as np
 
 import os.path
 import sys
+import time
 
 ###############################
 ##### Defining transforms #####
@@ -30,8 +31,8 @@ greyscale = torchvision.transforms.Grayscale(num_output_channels=1)
 # Negative
 invert = torchvision.transforms.functional.invert
 # Normalize data
-normalize = torchvision.transforms.Lambda(
-    lambda x: (x - mean_train_tensor)/std_train_tensor)
+"""normalize = torchvision.transforms.Lambda(
+    lambda x: (x - mean_train_tensor)/std_train_tensor)"""
 
 # Compose transforms
 composed_transforms = torchvision.transforms.Compose([centercrop, greyscale, invert,
@@ -60,17 +61,16 @@ def compute_mean_std(loader):
     print("Computing train data mean")
     # Compute the mean over minibatches
     mean_img = None
-    i=0
+    i = 0
     for imgs, _ in loader:
-        i+=1
-        if mean_img is None:       
+        i += 1
+        if mean_img is None:
             print("step1")
             mean_img = torch.zeros_like(imgs[0])
             print("step2")
-        print("{}/{}".format(i,len(loader)))
+        print("{}/{}".format(i, len(loader)))
         mean_img += imgs.sum(dim=0)
     mean_img /= len(loader.dataset)
-
 
     print("Computing train data std")
     # Compute the std over minibatches
@@ -227,9 +227,6 @@ f_loss = F1_Loss()
 dummy_loss = f_loss(torch.Tensor(
     [[-100, 10, 8]]), torch.LongTensor([2]))  # f1 test
 print("on calcule une loss f1 de : {}".format(dummy_loss))"""
-
-# Monitoring obejct
-tensorboard_writer = SummaryWriter(log_dir="./logs/")
 
 
 ############################
@@ -408,6 +405,9 @@ class ModelCheckpoint:
 # Define the callback object
 model_checkpoint = ModelCheckpoint(logdir + "/best_model.pt", model)
 
+# Monitoring obejct
+tensorboard_writer = SummaryWriter(log_dir=logdir)
+
 
 ###############################
 ##### Main learning run   #####
@@ -431,8 +431,8 @@ if __name__ == '__main__':
     epochs = 1
 
     for t in range(epochs):
-        print("epoch no. {}".format(t))
-        print("Epoch {}".format(t))
+        start_time = time.time()
+
         train_loss, train_acc = train(
             model, train_loader, f_loss, optimizer, device)
 
@@ -447,7 +447,10 @@ if __name__ == '__main__':
         tensorboard_writer.add_scalar('metrics/val_loss', val_loss, t)
         tensorboard_writer.add_scalar('metrics/val_acc',  val_acc, t)
 
+        print("Epoch {} time : {}".format(i, time.time() - start_time))
+
     print('learned')
+    tensorboard_writer.flush()
 
     ##### Save a summary of the run #####
 
@@ -475,5 +478,3 @@ if __name__ == '__main__':
     """.format(" ".join(sys.argv), model, sum(p.numel() for p in model.parameters() if p.requires_grad), optimizer)
     summary_file.write(summary_text)
     summary_file.close()
-
-    print(summary_text)
