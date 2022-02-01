@@ -14,3 +14,8 @@ entered test
 Saving a better model
 Epoch 0 time : 6732.162919521332
 entered train
+ Training : Loss : 0.9692, Acc : 0.4085
+entered test
+ Validation : Loss : 0.9716, Acc : 0.4119
+Epoch 1 time : 6837.979487895966
+entered train
