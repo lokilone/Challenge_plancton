@@ -64,9 +64,9 @@ class DatasetTransformer(torch.utils.data.Dataset):
 ##### Loading Data #####
 ########################
 print(os.path.exists("/opt/ChallengeDeep/train/"))
-#train_path = "/opt/ChallengeDeep/train/"
+train_path = "/opt/ChallengeDeep/train/"
 # Little sample to try
-train_path = "/usr/users/gpusdi1/gpusdi1_49/Bureau/sample_train"
+#train_path = "/usr/users/gpusdi1/gpusdi1_49/Bureau/sample_train"
 
 valid_ratio = 0.2
 
@@ -220,12 +220,6 @@ class convClassifier(nn.Module):
                                                            msize=2, mstride=2, mpad=0),
                                         *conv_relu_maxpool(cin=16, cout=16,
                                                            csize=3, cstride=1, cpad=1,
-                                                           msize=2, mstride=2, mpad=0),
-                                        *conv_relu_maxpool(cin=16, cout=32,
-                                                           csize=3, cstride=1, cpad=1,
-                                                           msize=2, mstride=2, mpad=0),
-                                        *conv_relu_maxpool(cin=32, cout=64,
-                                                           csize=3, cstride=1, cpad=1,
                                                            msize=2, mstride=2, mpad=0))
 
         print("initiated conv model")
@@ -376,7 +370,7 @@ def test(model, loader, f_loss, device):
 ###############################
 
 def generate_unique_logpath(logdir, raw_run_name):
-    i = "Fast_2"
+    i = "Fast_3"
     while(True):
         run_name = raw_run_name + "_" + str(i)
         log_path = os.path.join(logdir, run_name)
