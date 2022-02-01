@@ -112,7 +112,7 @@ train_dataset, valid_dataset = torch.utils.data.dataset.random_split(dataset, [
 
 # Random sampler
 
-def sampler_(dataset,train_counts,batch_size):
+def sampler_(dataset,train_counts):
     start_time = time.time()
     num_samples = len(dataset)
     labels = [dataset[item][1] for item in tqdm(range(len(dataset)))]
@@ -125,7 +125,7 @@ def sampler_(dataset,train_counts,batch_size):
     weights = [class_weights[labels[i]] for i in tqdm(range(num_samples))]
     weight_end_time = time.time()
     print('got final weights in {} s'.format(weight_end_time-classw_end_time))
-    sampler = torch.utils.data.sampler.WeightedRandomSampler(torch.DoubleTensor(weights), batch_size)
+    sampler = torch.utils.data.sampler.WeightedRandomSampler(torch.DoubleTensor(weights), num_samples)
     return sampler
 
 ##### Generating Loaders #####
@@ -139,7 +139,7 @@ train_set_counts = [1983, 243570, 214, 638, 1326, 1328, 23797, 5781, 289, 18457,
 4391, 1285, 5604, 6996, 53387, 235, 632, 11490, 88, 2589, 2517, 388, 2086, 172, 727]
 
 print("creating sampler")
-sampler = sampler_(train_dataset,train_set_counts,batch_size)
+sampler = sampler_(train_dataset,train_set_counts)
 print("sampler created")
 
 # training loader

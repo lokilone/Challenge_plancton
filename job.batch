@@ -1,9 +1,9 @@
 #!/bin/bash 
 
-#SBATCH --job-name= run0_noNorm
+#SBATCH --job-name=run0_f1
 #SBATCH --nodes=1
 #SBATCH --partition=gpu_prod_long
-#SBATCH --time= 2-00:00
+#SBATCH --time=48:00:00
 #SBATCH --output=logslurms/slurm-%j.out
 #SBATCH --error=logslurms/slurm-%j.err
 
