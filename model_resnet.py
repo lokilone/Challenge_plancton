@@ -15,7 +15,6 @@ import numpy as np
 
 import os.path
 import sys
-import time
 
 ###############################
 ##### Defining transforms #####
@@ -31,11 +30,11 @@ greyscale = torchvision.transforms.Grayscale(num_output_channels=1)
 # Negative
 invert = torchvision.transforms.functional.invert
 # Normalize data
-"""normalize = torchvision.transforms.Lambda(
-    lambda x: (x - mean_train_tensor)/std_train_tensor)"""
+normalize = torchvision.transforms.Lambda(
+    lambda x: (x - mean_train_tensor)/std_train_tensor)
 
 # Compose transforms
-composed_transforms = torchvision.transforms.Compose([greyscale, invert, centercrop,
+composed_transforms = torchvision.transforms.Compose([centercrop, greyscale, invert,
                                                       torchvision.transforms.ToTensor()])
 
 # Create transformer class (currently unused, we transform on data loading)
@@ -61,16 +60,17 @@ def compute_mean_std(loader):
     print("Computing train data mean")
     # Compute the mean over minibatches
     mean_img = None
-    i = 0
+    i=0
     for imgs, _ in loader:
-        i += 1
-        if mean_img is None:
+        i+=1
+        if mean_img is None:       
             print("step1")
             mean_img = torch.zeros_like(imgs[0])
             print("step2")
-        print("{}/{}".format(i, len(loader)))
+        print("{}/{}".format(i,len(loader)))
         mean_img += imgs.sum(dim=0)
     mean_img /= len(loader.dataset)
+
 
     print("Computing train data std")
     # Compute the std over minibatches
@@ -124,12 +124,12 @@ valid_loader = torch.utils.data.DataLoader(dataset=valid_dataset,
                                            shuffle=True)
 
 # Compute avg and std for normalization
-"""mean_train_tensor, std_train_tensor = torch.float32(0.485), torch.float32(0.229)
+mean_train_tensor, std_train_tensor = compute_mean_std(train_loader)
 print("mean : {} std : {}".format(mean_train_tensor,std_train_tensor))
 
 # Normalization
-train_loader = normalize(train_loader)
-valid_loader = normalize(valid_loader)"""
+##train_loader = normalize(train_loader)
+#valid_loader = normalize(valid_loader)
 
 # Data Inspect
 print("The train set contains {} images, in {} batches".format(
@@ -141,7 +141,7 @@ print("The validation set contains {} images, in {} batches".format(
 #############################
 ##### Display Some data #####
 #############################
-"""n_samples = 10
+n_samples = 10
 
 class_names = dataset.classes
 imgs, labels = next(iter(train_loader))
@@ -155,7 +155,7 @@ for i in range(n_samples):
     ax.get_yaxis().set_visible(False)
 
 plt.savefig('plancton.png', bbox_inches='tight')
-plt.show()"""
+plt.show()
 
 
 ####################################
@@ -227,6 +227,9 @@ f_loss = F1_Loss()
 dummy_loss = f_loss(torch.Tensor(
     [[-100, 10, 8]]), torch.LongTensor([2]))  # f1 test
 print("on calcule une loss f1 de : {}".format(dummy_loss))"""
+
+# Monitoring obejct
+tensorboard_writer = SummaryWriter(log_dir=logdir)
 
 
 ############################
@@ -303,7 +306,7 @@ def train(model, loader, f_loss, optimizer, device):
     tot_loss, correct = 0.0, 0.0
 
     for i, (inputs, targets) in enumerate(loader):
-        
+        print("train batch no. {}".format(i))
         inputs, targets = inputs.to(device), targets.to(device)
 
         # Compute the forward pass through the network up to the loss
@@ -325,10 +328,10 @@ def train(model, loader, f_loss, optimizer, device):
         predicted_targets = outputs.argmax(dim=1)
         correct += (predicted_targets == targets).sum().item()
 
-    print(" Training : Loss : {:.4f}, Acc : {:.4f}".format(
-        tot_loss/N, correct/N))
+        print(" Training : Loss : {:.4f}, Acc : {:.4f}".format(
+            tot_loss/N, correct/N))
 
-    return tot_loss/N, correct/N
+        return tot_loss/N, correct/N
 
 # Test
 
@@ -346,7 +349,7 @@ def test(model, loader, f_loss, device):
         tot_loss, correct = 0.0, 0.0
 
         for i, (inputs, targets) in enumerate(loader):
-            
+            print("test batch no. {}".format(i))
             inputs, targets = inputs.to(device), targets.to(device)
 
             # Compute the forward pass, i.e. the scores for each input image
@@ -405,9 +408,6 @@ class ModelCheckpoint:
 # Define the callback object
 model_checkpoint = ModelCheckpoint(logdir + "/best_model.pt", model)
 
-# Monitoring obejct
-tensorboard_writer = SummaryWriter(log_dir=logdir)
-
 
 ###############################
 ##### Main learning run   #####
@@ -428,11 +428,11 @@ if __name__ == '__main__':
     eval(f"{args.command}(args)")
     """
     ##### learning loop #####
-    epochs = 10
+    epochs = 15
 
     for t in range(epochs):
-        start_time = time.time()
-
+        print("epoch no. {}".format(t))
+        print("Epoch {}".format(t))
         train_loss, train_acc = train(
             model, train_loader, f_loss, optimizer, device)
 
@@ -442,15 +442,12 @@ if __name__ == '__main__':
         model_checkpoint.update(val_loss)
 
         # Monitoring
-        """tensorboard_writer.add_scalar('metrics/train_loss', train_loss, t)
+        tensorboard_writer.add_scalar('metrics/train_loss', train_loss, t)
         tensorboard_writer.add_scalar('metrics/train_acc',  train_acc, t)
         tensorboard_writer.add_scalar('metrics/val_loss', val_loss, t)
-        tensorboard_writer.add_scalar('metrics/val_acc',  val_acc, t)"""
-
-        print("Epoch {} time : {}".format(t, time.time() - start_time))
+        tensorboard_writer.add_scalar('metrics/val_acc',  val_acc, t)
 
     print('learned')
-    #tensorboard_writer.flush()
 
     ##### Save a summary of the run #####
 
@@ -478,3 +475,5 @@ if __name__ == '__main__':
     """.format(" ".join(sys.argv), model, sum(p.numel() for p in model.parameters() if p.requires_grad), optimizer)
     summary_file.write(summary_text)
     summary_file.close()
+
+    print(summary_text)

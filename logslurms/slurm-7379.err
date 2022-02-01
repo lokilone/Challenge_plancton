@@ -1,0 +1,5 @@
+Unable to init server: Could not connect: Connection refused
+Unable to init server: Impossible de se connecter : Connection refused
+
+(model.py:1385030): Gdk-CRITICAL **: 08:47:17.209: gdk_cursor_new_for_display: assertion 'GDK_IS_DISPLAY (display)' failed
+[W NNPACK.cpp:79] Could not initialize NNPACK! Reason: Unsupported hardware.
