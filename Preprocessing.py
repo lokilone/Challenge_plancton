@@ -3,6 +3,7 @@ import torch.utils.data
 import os.path
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
+import numpy as np
 
 ###############################
 ##### Defining transforms #####
@@ -25,16 +26,15 @@ resize = torchvision.transforms.Resize((300,300))
 ### Data Augmentation
 rotate = torchvision.transforms.RandomRotation((0, 360))
 
-augmentation = torchvision.transforms.AutoAugment()
+#augmentation = torchvision.transforms.AutoAugment()
 
 
 # Normalization
-normalization = torchvision.transforms.Normalize(mean=[0.485],std=[0.229])
+normalization = torchvision.transforms.Normalize(mean=[0.13],std=[0.17])
 
 
 # Compose transforms
 composed_transforms = torchvision.transforms.Compose([greyscale, invert, resize, torchvision.transforms.ToTensor(), normalization])
-#composed_transforms = torchvision.transforms.Compose([greyscale, invert, resize, augmentation, torchvision.transforms.ToTensor()])
 
 
 # Create transformer class
@@ -101,6 +101,10 @@ print("The train set contains {} images, in {} batches".format(
 print("The validation set contains {} images, in {} batches".format(
     len(valid_loader.dataset), len(valid_loader)))
 
+imgs = torch.stack([img_t for img_t, _ in valid_loader.dataset], dim=3)
+print(imgs.shape)
+print(imgs.view(1, -1).mean(dim=1))
+print(imgs.view(1, -1).std(dim=1))
 
 #############################
 ##### Display Some data #####
@@ -111,6 +115,7 @@ class_names = dataset.classes
 imgs, labels = next(iter(train_loader))
 
 fig = plt.figure(figsize=(30, 30), facecolor='w')
+
 for col in range(n_samples):
     ax = plt.subplot(2, n_samples, col+1)
     plt.imshow(imgs[col, 0, :, :], vmin=0, vmax=1.0, cmap=cm.gray)
