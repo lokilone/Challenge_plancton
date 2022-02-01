@@ -1,10 +1,10 @@
 #!/bin/bash 
 
-#SBATCH --job-name=run0_f1
+#SBATCH --job-name=Samba
 #SBATCH --nodes=1
-#SBATCH --partition=gpu_prod_long
-#SBATCH --time=48:00:00
+#SBATCH --partition=gpu_prod_night
+#SBATCH --time=12:00:00
 #SBATCH --output=logslurms/slurm-%j.out
 #SBATCH --error=logslurms/slurm-%j.err
 
-python3 new_model.py
+python3 main.py --action train --batch_size 128 --dataset_dir /mounts/Datasets1/ChallengeDeep/ --model custom --weighted_sampler True
