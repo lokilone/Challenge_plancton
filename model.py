@@ -403,7 +403,7 @@ def test(model, loader, f_loss, device):
 ###############################
 
 def generate_unique_logpath(logdir, raw_run_name):
-    i = 0
+    i = "withSamplerF1loss"
     while(True):
         run_name = raw_run_name + "_" + str(i)
         log_path = os.path.join(logdir, run_name)
@@ -475,10 +475,10 @@ if __name__ == '__main__':
         model_checkpoint.update(val_loss)
 
         # Monitoring
-        """tensorboard_writer.add_scalar('metrics/train_loss', train_loss, t)
+        tensorboard_writer.add_scalar('metrics/train_loss', train_loss, t)
         tensorboard_writer.add_scalar('metrics/train_acc',  train_acc, t)
         tensorboard_writer.add_scalar('metrics/val_loss', val_loss, t)
-        tensorboard_writer.add_scalar('metrics/val_acc',  val_acc, t)"""
+        tensorboard_writer.add_scalar('metrics/val_acc',  val_acc, t)
 
         print("Epoch {} time : {}".format(t, time.time() - start_time))
 
