@@ -96,7 +96,7 @@ def compute_mean_std(loader):
 ########################
 print(os.path.exists("/opt/ChallengeDeep/train/"))
 train_path = "/opt/ChallengeDeep/train/"
-valid_ratio = 0.2
+valid_ratio = 0.3
 
 # Load learning data
 print('Data loading started')
