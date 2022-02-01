@@ -2,26 +2,30 @@ import os
 import numpy as np 
 import matplotlib.pyplot as plt
 
-print(os.path.exists("/opt/ChallengeDeep/train/"))
+path = "/opt/ChallengeDeep/train/"
 
-train_path = "/opt/ChallengeDeep/train/"
 
-categories = np.sort(os.listdir(train_path))
+def class_weights(path):
+    train_path = path
 
-category_paths = []
+    categories = np.sort(os.listdir(train_path))
 
-for category in categories :
-    category_paths.append(os.path.join(train_path, category))
+    category_paths = []
 
-number_of_images = []
-image_paths = {}
-image_names = {}
+    for category in categories :
+        category_paths.append(os.path.join(train_path, category))
 
-for category_path, category in zip(category_paths, categories):
-    number_of_images.append(len(os.listdir(category_path)))
-    image_names[category] = np.sort(os.listdir(category_path))
-    image_paths[category] = []
-    for image in image_names[category]:
-        image_paths[category].append(os.path.join(category_path, image))
+    number_of_images = []
+    image_paths = {}
+    image_names = {}
 
-print(number_of_images)
+    for category_path, category in zip(category_paths, categories):
+        number_of_images.append(len(os.listdir(category_path)))
+        image_names[category] = np.sort(os.listdir(category_path))
+        image_paths[category] = []
+        for image in image_names[category]:
+            image_paths[category].append(os.path.join(category_path, image))
+
+    return number_of_images
+
+print(class_weights(path))

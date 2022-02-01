@@ -25,10 +25,12 @@ resize = torchvision.transforms.Resize((300,300))
 ### Data Augmentation
 rotate = torchvision.transforms.RandomRotation((0, 360))
 
+augmentation = torchvision.transforms.AutoAugment()
+
 
 # Compose transforms
-#composed_transforms = torchvision.transforms.Compose([greyscale, invert, resize, torchvision.transforms.ToTensor(), rotate])
-composed_transforms = torch.nn.Sequential(greyscale, invert, resize, torchvision.transforms.ToTensor(), rotate)
+composed_transforms = torchvision.transforms.Compose([greyscale, invert, resize, torchvision.transforms.ToTensor()])
+#composed_transforms = torchvision.transforms.Compose([greyscale, invert, resize, augmentation, torchvision.transforms.ToTensor()])
 
 
 # Create transformer class
@@ -71,7 +73,7 @@ print('data split')
 ### Augmentation
 augmentation = torchvision.transforms.AutoAugment
 
-train_dataset = augmentation(train_dataset)
+#train_dataset = augmentation(train_dataset)
 
 ##### Generating Loaders #####
 num_workers = 4
@@ -113,5 +115,5 @@ for col in range(n_samples):
     ax.get_yaxis().set_visible(False)
 
 plt.savefig('plancton_alban.png', bbox_inches='tight')
-print('saved_iamges')
+print('saved_images')
 plt.show()
