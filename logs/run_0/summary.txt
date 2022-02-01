@@ -2,7 +2,7 @@
 
     Executed command
     ================
-    model.py
+    epoch.py
 
     Dataset
     =======

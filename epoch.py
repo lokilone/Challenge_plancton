@@ -12,6 +12,7 @@ import torch.nn.functional
 from torch.utils.tensorboard import SummaryWriter
 
 import numpy as np
+from tqdm import tqdm
 
 import os.path
 import sys
@@ -95,7 +96,7 @@ def compute_mean_std(loader):
 ########################
 print(os.path.exists("/opt/ChallengeDeep/train/"))
 train_path = "/opt/ChallengeDeep/train/"
-valid_ratio = 0.2
+valid_ratio = 0.9
 
 # Load learning data
 print('Data loading started')
@@ -109,31 +110,49 @@ nb_valid = len(dataset)-nb_train
 train_dataset, valid_dataset = torch.utils.data.dataset.random_split(dataset, [
                                                                      nb_train, nb_valid])
 
+# Random sampler
+
+def sampler_(dataset,train_counts,batch_size):
+    start_time = time.time()
+    num_samples = len(dataset)
+    labels = [dataset[item][1] for item in tqdm(range(len(dataset)))]
+    label_end_time = time.time()
+    print('got labels in {} s'.format(label_end_time-start_time))
+
+    class_weights = torch.from_numpy(1./ np.array(train_set_counts))
+    classw_end_time = time.time()
+    print('got class weights in {} s'.format(classw_end_time-label_end_time))
+    weights = [class_weights[labels[i]] for i in tqdm(range(num_samples))]
+    weight_end_time = time.time()
+    print('got final weights in {} s'.format(weight_end_time-classw_end_time))
+    sampler = torch.utils.data.sampler.WeightedRandomSampler(torch.DoubleTensor(weights), batch_size)
+    return sampler
+
 ##### Generating Loaders #####
 num_workers = 4
 batch_size = 128
 
-# Random sampler
-train_set_weights = [1983, 243570, 214, 638, 1326, 1328, 23797, 5781, 289, 18457, 536, 185, 1045, 1210, 
+train_set_counts = [1983, 243570, 214, 638, 1326, 1328, 23797, 5781, 289, 18457, 536, 185, 1045, 1210, 
 686, 5570, 8402, 3060, 168, 953, 4764, 2825, 3242, 78, 37, 3916, 98, 8200, 576, 19225, 686, 4213, 336, 188, 
 1459, 1869, 180000, 3538, 1091, 6056, 142, 33147, 2085, 170, 308, 14799, 4609, 156, 3900, 3983, 3111, 1988, 
 5079, 244, 6368, 757, 1289, 12636, 42096, 10008, 3465, 269, 457, 10038, 8213, 372, 2314, 234, 590, 15431, 12954, 
 4391, 1285, 5604, 6996, 53387, 235, 632, 11490, 88, 2589, 2517, 388, 2086, 172, 727]
-weights = torch.FloatTensor(train_set_weights).view(1,-1).double()
-sampler = torch.utils.data.sampler.WeightedRandomSampler(weights, batch_size)
+
+print("creating sampler")
+sampler = sampler_(train_dataset,train_set_counts,batch_size)
+print("sampler created")
 
 # training loader
 train_loader = torch.utils.data.DataLoader(dataset=train_dataset,
                                            batch_size=batch_size,
+                                           sampler = sampler,
                                            num_workers=num_workers,
-                                           sampler=sampler,
-                                           shuffle=True)
+                                           shuffle=False)
 
 # validation loader
 valid_loader = torch.utils.data.DataLoader(dataset=valid_dataset,
                                            batch_size=batch_size,
                                            num_workers=num_workers,
-                                           sampler = sampler,
                                            shuffle=True)
 
 # Compute avg and std for normalization
@@ -315,7 +334,7 @@ def train(model, loader, f_loss, optimizer, device):
     N = 0
     tot_loss, correct = 0.0, 0.0
 
-    for i, (inputs, targets) in enumerate(loader):
+    for i, (inputs, targets) in enumerate(tqdm(loader)):
         
         inputs, targets = inputs.to(device), targets.to(device)
 
@@ -358,7 +377,7 @@ def test(model, loader, f_loss, device):
         N = 0
         tot_loss, correct = 0.0, 0.0
 
-        for i, (inputs, targets) in enumerate(loader):
+        for i, (inputs, targets) in enumerate(tqdm(loader)):
             
             inputs, targets = inputs.to(device), targets.to(device)
 
@@ -441,9 +460,9 @@ if __name__ == '__main__':
     eval(f"{args.command}(args)")
     """
     ##### learning loop #####
-    epochs = 10
+    epochs = 1
 
-    for t in range(epochs):
+    for t in tqdm(range(epochs)):
         start_time = time.time()
 
         train_loss, train_acc = train(
@@ -452,7 +471,7 @@ if __name__ == '__main__':
         val_loss, val_acc = test(model, valid_loader, f_loss, device)
         print(" Validation : Loss : {:.4f}, Acc : {:.4f}".format(
             val_loss, val_acc))
-        model_checkpoint.update(val_loss)
+        #model_checkpoint.update(val_loss)
 
         # Monitoring
         """tensorboard_writer.add_scalar('metrics/train_loss', train_loss, t)

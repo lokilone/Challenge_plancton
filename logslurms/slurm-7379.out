@@ -19,3 +19,8 @@ entered test
  Validation : Loss : 0.9716, Acc : 0.4119
 Epoch 1 time : 6837.979487895966
 entered train
+ Training : Loss : 0.9705, Acc : 0.3991
+entered test
+ Validation : Loss : 0.9712, Acc : 0.3981
+Epoch 2 time : 6834.180264234543
+entered train
