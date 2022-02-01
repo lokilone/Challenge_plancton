@@ -1,0 +1,65 @@
+True
+Data loading started
+Dataset Loaded
+The train set contains 684315 images, in 10693 batches
+The validation set contains 171079 images, in 2674 batches
+initiated conv model
+256
+initiated linear model
+Logging to ./logs/run_0
+entered train
+ Training : Loss : 0.9901, Acc : 0.2842
+entered test
+ Validation : Loss : 0.9901, Acc : 0.2843
+Saving a better model
+Epoch 0 time : 223.95504522323608
+entered train
+ Training : Loss : 0.9901, Acc : 0.2849
+entered test
+ Validation : Loss : 0.9901, Acc : 0.2843
+Saving a better model
+Epoch 1 time : 220.26770067214966
+entered train
+ Training : Loss : 0.9901, Acc : 0.2849
+entered test
+ Validation : Loss : 0.9901, Acc : 0.2843
+Saving a better model
+Epoch 2 time : 220.46345829963684
+entered train
+ Training : Loss : 0.9901, Acc : 0.2849
+entered test
+ Validation : Loss : 0.9901, Acc : 0.2843
+Saving a better model
+Epoch 3 time : 221.68887615203857
+entered train
+ Training : Loss : 0.9901, Acc : 0.2849
+entered test
+ Validation : Loss : 0.9901, Acc : 0.2843
+Epoch 4 time : 221.04515266418457
+entered train
+ Training : Loss : 0.9901, Acc : 0.2849
+entered test
+ Validation : Loss : 0.9901, Acc : 0.2843
+Saving a better model
+Epoch 5 time : 221.14509558677673
+entered train
+ Training : Loss : 0.9901, Acc : 0.2849
+entered test
+ Validation : Loss : 0.9901, Acc : 0.2843
+Epoch 6 time : 219.7649552822113
+entered train
+ Training : Loss : 0.9901, Acc : 0.2849
+entered test
+ Validation : Loss : 0.9901, Acc : 0.2843
+Epoch 7 time : 221.55664610862732
+entered train
+ Training : Loss : 0.9901, Acc : 0.2849
+entered test
+ Validation : Loss : 0.9901, Acc : 0.2843
+Epoch 8 time : 220.7881019115448
+entered train
+ Training : Loss : 0.9901, Acc : 0.2849
+entered test
+ Validation : Loss : 0.9901, Acc : 0.2843
+Epoch 9 time : 219.82889771461487
+learned

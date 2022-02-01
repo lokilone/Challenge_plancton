@@ -1,0 +1,9 @@
+Unable to init server: Could not connect: Connection refused
+Unable to init server: Impossible de se connecter : Connection refused
+
+(model.py:1379521): Gdk-CRITICAL **: 18:00:13.927: gdk_cursor_new_for_display: assertion 'GDK_IS_DISPLAY (display)' failed
+[W NNPACK.cpp:79] Could not initialize NNPACK! Reason: Unsupported hardware.
+Traceback (most recent call last):
+  File "model.py", line 450, in <module>
+    print("Epoch {} time : {}".format(i, time.time() - start_time))
+NameError: name 'i' is not defined

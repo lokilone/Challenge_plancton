@@ -141,7 +141,7 @@ print("The validation set contains {} images, in {} batches".format(
 #############################
 ##### Display Some data #####
 #############################
-"""n_samples = 10
+n_samples = 10
 
 class_names = dataset.classes
 imgs, labels = next(iter(train_loader))
@@ -155,7 +155,7 @@ for i in range(n_samples):
     ax.get_yaxis().set_visible(False)
 
 plt.savefig('plancton.png', bbox_inches='tight')
-plt.show()"""
+plt.show()
 
 
 ####################################
@@ -303,6 +303,8 @@ def train(model, loader, f_loss, optimizer, device):
     tot_loss, correct = 0.0, 0.0
 
     for i, (inputs, targets) in enumerate(loader):
+        if i%1000 == 0 :
+            print("train batch no {}".format(i))
         
         inputs, targets = inputs.to(device), targets.to(device)
 
@@ -346,6 +348,8 @@ def test(model, loader, f_loss, device):
         tot_loss, correct = 0.0, 0.0
 
         for i, (inputs, targets) in enumerate(loader):
+            if i%1000 == 0 :
+                print("val batch no {}".format(i))
             
             inputs, targets = inputs.to(device), targets.to(device)
 
@@ -370,7 +374,7 @@ def test(model, loader, f_loss, device):
 ###############################
 
 def generate_unique_logpath(logdir, raw_run_name):
-    i = 0
+    i = 1
     while(True):
         run_name = raw_run_name + "_" + str(i)
         log_path = os.path.join(logdir, run_name)
@@ -428,7 +432,7 @@ if __name__ == '__main__':
     eval(f"{args.command}(args)")
     """
     ##### learning loop #####
-    epochs = 10
+    epochs = 1
 
     for t in range(epochs):
         start_time = time.time()
@@ -442,15 +446,15 @@ if __name__ == '__main__':
         model_checkpoint.update(val_loss)
 
         # Monitoring
-        """tensorboard_writer.add_scalar('metrics/train_loss', train_loss, t)
+        tensorboard_writer.add_scalar('metrics/train_loss', train_loss, t)
         tensorboard_writer.add_scalar('metrics/train_acc',  train_acc, t)
         tensorboard_writer.add_scalar('metrics/val_loss', val_loss, t)
-        tensorboard_writer.add_scalar('metrics/val_acc',  val_acc, t)"""
+        tensorboard_writer.add_scalar('metrics/val_acc',  val_acc, t)
 
         print("Epoch {} time : {}".format(t, time.time() - start_time))
 
     print('learned')
-    #tensorboard_writer.flush()
+    tensorboard_writer.flush()
 
     ##### Save a summary of the run #####
 

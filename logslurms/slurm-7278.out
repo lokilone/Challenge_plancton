@@ -1,0 +1,14 @@
+True
+Data loading started
+Dataset Loaded
+The train set contains 684315 images, in 10693 batches
+The validation set contains 171079 images, in 2674 batches
+initiated conv model
+256
+initiated linear model
+Logging to ./logs/run_0
+entered train
+ Training : Loss : 0.9794, Acc : 0.3642
+entered test
+ Validation : Loss : 0.9822, Acc : 0.2759
+Saving a better model
