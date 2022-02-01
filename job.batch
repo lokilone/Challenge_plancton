@@ -7,4 +7,4 @@
 #SBATCH --output=logslurms/slurm-%j.out
 #SBATCH --error=logslurms/slurm-%j.err
 
-python3 model.py
+python3 new_model.py

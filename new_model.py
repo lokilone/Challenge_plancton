@@ -66,7 +66,7 @@ class DatasetTransformer(torch.utils.data.Dataset):
 print(os.path.exists("/opt/ChallengeDeep/train/"))
 train_path = "/opt/ChallengeDeep/train/"
 # Little sample to try
-train_path = "/usr/users/gpusdi1/gpusdi1_49/Bureau/sample_train"
+# train_path = "/usr/users/gpusdi1/gpusdi1_49/Bureau/sample_train"
 
 valid_ratio = 0.2
 
@@ -181,7 +181,7 @@ class F1_Loss(nn.Module):
 
         ##### Warning remplacer 2 par 86
         y_true = nn.functional.one_hot(
-            y_true, 2).to(torch.float32)
+            y_true, 86).to(torch.float32)
         y_pred = nn.functional.softmax(y_pred, dim=1)
 
         tp = (y_true * y_pred).sum(dim=0).to(torch.float32)
@@ -375,7 +375,7 @@ def test(model, loader, f_loss, device):
 ###############################
 
 def generate_unique_logpath(logdir, raw_run_name):
-    i = "withSamplerF1loss_2"
+    i = "withSamplerF1loss"
     while(True):
         run_name = raw_run_name + "_" + str(i)
         log_path = os.path.join(logdir, run_name)
