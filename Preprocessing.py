@@ -28,8 +28,12 @@ rotate = torchvision.transforms.RandomRotation((0, 360))
 augmentation = torchvision.transforms.AutoAugment()
 
 
+# Normalization
+normalization = torchvision.transforms.Normalize(mean=[0.485],std=[0.229])
+
+
 # Compose transforms
-composed_transforms = torchvision.transforms.Compose([greyscale, invert, resize, torchvision.transforms.ToTensor()])
+composed_transforms = torchvision.transforms.Compose([greyscale, invert, resize, torchvision.transforms.ToTensor(), normalization])
 #composed_transforms = torchvision.transforms.Compose([greyscale, invert, resize, augmentation, torchvision.transforms.ToTensor()])
 
 
