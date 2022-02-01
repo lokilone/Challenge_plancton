@@ -4,6 +4,7 @@ import os.path
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 import numpy as np
+import time
 
 
 ###############################
@@ -142,3 +143,22 @@ def display_data(n_samples):
     plt.savefig('plancton_alban.png', bbox_inches='tight')
     print('saved_images')
     plt.show()
+
+# Random sampler
+
+def sampler_(dataset,train_counts):
+    start_time = time.time()
+    num_samples = len(dataset)
+    labels = [dataset[item][1] for item in tqdm(range(len(dataset)))]
+    label_end_time = time.time()
+    print('got labels in {} s'.format(label_end_time-start_time))
+
+    class_weights = 1./ np.array(train_counts)
+    classw_end_time = time.time()
+    print('got class weights in {} s'.format(classw_end_time-label_end_time))
+    weights = class_weights[labels]
+    weights = torch.from_numpy(weights)
+    weight_end_time = time.time()
+    print('got final weights in {} s'.format(weight_end_time-classw_end_time))
+    sampler = torch.utils.data.sampler.WeightedRandomSampler(weights, num_samples)
+    return sampler
