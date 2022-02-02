@@ -1,0 +1,78 @@
+Start
+Ligne 191
+Ligne 147
+Nb Train :  760273
+Nb Valid :  190067
+Len input :  950340
+train : [380334, 379939, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+The train set contains 760273 images, in 5940 batches, model = custom
+The validation set contains 190067 images, in 1485 batches
+Gpu :  True
+Len weights :  86
+tensor([1.2283e+02, 1.0000e+00, 1.1382e+03, 3.8177e+02, 1.8369e+02, 1.8341e+02,
+        1.0235e+01, 4.2133e+01, 8.4280e+02, 1.3197e+01, 4.5442e+02, 1.3166e+03,
+        2.3308e+02, 2.0130e+02, 3.5506e+02, 4.3729e+01, 2.8990e+01, 7.9598e+01,
+        1.4498e+03, 2.5558e+02, 5.1127e+01, 8.6219e+01, 7.5130e+01, 3.1227e+03,
+        6.5830e+03, 6.2199e+01, 2.4854e+03, 2.9704e+01, 4.2286e+02, 1.2669e+01,
+        3.5506e+02, 5.7814e+01, 7.2491e+02, 1.2956e+03, 1.6694e+02, 1.3032e+02,
+        1.3532e+00, 6.8844e+01, 2.2325e+02, 4.0220e+01, 1.7153e+03, 7.3482e+00,
+        1.1682e+02, 1.4328e+03, 7.9081e+02, 1.6459e+01, 5.2847e+01, 1.5613e+03,
+        6.2454e+01, 6.1152e+01, 7.8293e+01, 1.2252e+02, 4.7956e+01, 9.9824e+02,
+        3.8249e+01, 3.2176e+02, 1.8896e+02, 1.9276e+01, 5.7861e+00, 2.4338e+01,
+        7.0294e+01, 9.0546e+02, 5.3298e+02, 2.4265e+01, 2.9657e+01, 6.5476e+02,
+        1.0526e+02, 1.0409e+03, 4.1283e+02, 1.5784e+01, 1.8803e+01, 5.5470e+01,
+        1.8955e+02, 4.3464e+01, 3.4816e+01, 4.5623e+00, 1.0365e+03, 3.8540e+02,
+        2.1198e+01, 2.7678e+03, 9.4079e+01, 9.6770e+01, 6.2776e+02, 1.1676e+02,
+        1.4161e+03, 3.3503e+02], device='cuda:0')
+Logging to ./logs/custom_0
+Training is starting
+Epoch 0
+ Train : Loss : 0.7073, Acc : 0.4998, Validation : Loss : 0.7390, Acc : 0.1000
+Saving a better model
+Epoch 1
+ Train : Loss : 0.6939, Acc : 0.4996, Validation : Loss : 0.7111, Acc : 0.1000
+Saving a better model
+Epoch 2
+ Train : Loss : 0.6934, Acc : 0.5002, Validation : Loss : 0.7224, Acc : 0.1000
+Epoch 3
+ Train : Loss : 0.6933, Acc : 0.5000, Validation : Loss : 0.6954, Acc : 0.1000
+Saving a better model
+Epoch 4
+ Train : Loss : 0.6932, Acc : 0.5005, Validation : Loss : 0.6966, Acc : 0.1000
+Epoch 5
+ Train : Loss : 0.6932, Acc : 0.4995, Validation : Loss : 0.6968, Acc : 0.1000
+Epoch 6
+ Train : Loss : 0.6932, Acc : 0.5006, Validation : Loss : 0.6927, Acc : 0.8999
+Saving a better model
+Epoch 7
+ Train : Loss : 0.6932, Acc : 0.5011, Validation : Loss : 0.6989, Acc : 0.1000
+Epoch 8
+ Train : Loss : 0.6932, Acc : 0.4999, Validation : Loss : 0.6969, Acc : 0.1000
+Epoch 9
+ Train : Loss : 0.6932, Acc : 0.4996, Validation : Loss : 0.6894, Acc : 0.9000
+Saving a better model
+Epoch 10
+ Train : Loss : 0.6932, Acc : 0.5007, Validation : Loss : 0.6850, Acc : 0.9000
+Saving a better model
+Epoch 11
+ Train : Loss : 0.6932, Acc : 0.4999, Validation : Loss : 0.6845, Acc : 0.8999
+Saving a better model
+Epoch 12
+ Train : Loss : 0.6932, Acc : 0.5008, Validation : Loss : 0.6944, Acc : 0.1808
+Epoch 13
+ Train : Loss : 0.6932, Acc : 0.5010, Validation : Loss : 0.7056, Acc : 0.1019
+Epoch 14
+ Train : Loss : 0.6932, Acc : 0.4995, Validation : Loss : 0.6904, Acc : 0.8757
+Epoch 15
+ Train : Loss : 0.6932, Acc : 0.5000, Validation : Loss : 0.6959, Acc : 0.1945
+Epoch 16
+ Train : Loss : 0.6932, Acc : 0.5007, Validation : Loss : 0.6972, Acc : 0.1429
+Epoch 17
+ Train : Loss : 0.6931, Acc : 0.5015, Validation : Loss : 0.6928, Acc : 0.5170
+Epoch 18
+ Train : Loss : 0.6932, Acc : 0.5010, Validation : Loss : 0.6926, Acc : 0.4536
+Epoch 19
+ Train : Loss : 0.6932, Acc : 0.5006, Validation : Loss : 0.6929, Acc : 0.4356
+Epoch 20
+ Train : Loss : 0.6932, Acc : 0.5018, Validation : Loss : 0.6953, Acc : 0.1506
+Epoch 21
