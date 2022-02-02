@@ -1,10 +1,10 @@
 #!/bin/bash 
 
-#SBATCH --job-name=run0_f1
+#SBATCH --job-name=vgg_cross
 #SBATCH --nodes=1
 #SBATCH --partition=gpu_prod_long
 #SBATCH --time=48:00:00
-#SBATCH --output=logslurms/slurm-%j.out
-#SBATCH --error=logslurms/slurm-%j.err
+#SBATCH --output=logslurms/vgg_crossentropy.out
+#SBATCH --error=logslurms/vgg_crossentropy.err
 
-python3 new_model.py
+python3 model_vgg_cross.py

@@ -199,7 +199,7 @@ class F1_Loss(nn.Module):
 
 
 # Init loss object
-f_loss = F1_Loss()
+f_loss = torch.nn.CrossEntropyLoss()
 
 ############################
 ##### Building a Model #####
@@ -208,7 +208,7 @@ class convClassifier(nn.Module):
 
     def __init__(self, num_classes):
         super(convClassifier, self).__init__()
-        self.conv_model = models.resnet18(pretrained=True)
+        self.conv_model = models.vgg16(pretrained=True)
 
         print("initiated conv model")
 
@@ -358,7 +358,7 @@ def test(model, loader, f_loss, device):
 ###############################
 
 def generate_unique_logpath(logdir, raw_run_name):
-    i = "resnet"
+    i = "vgg_cross"
     while(True):
         run_name = raw_run_name + "_" + str(i)
         log_path = os.path.join(logdir, run_name)
