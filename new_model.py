@@ -143,12 +143,19 @@ def conv_relu_maxpool(cin, cout, csize, cstride, cpad, msize, mstride, mpad):
             nn.ReLU(inplace=True),
             nn.MaxPool2d(msize, mstride, mpad)]
 
-# A linear base block
+# A linear base blocks
 
-
-def linear_relu(dim_in, dim_out):
-    return [nn.Linear(dim_in, dim_out),
+def linear_relu(dim_in, dim_out, p_dropout):
+    return [nn.Dropout(p_dropout),
+            nn.Linear(dim_in, dim_out),
             nn.ReLU(inplace=True)]
+
+def linear_softmax(dim_in, dim_out):
+    return [nn.Linear(dim_in, dim_out),
+            nn.Softmax()]
+
+# Dropout layer
+
 
 # Compute convolution output
 def out_size(conv_model):
@@ -207,26 +214,17 @@ class convClassifier(nn.Module):
 
     def __init__(self, num_classes):
         super(convClassifier, self).__init__()
-        self.conv_model = nn.Sequential(*conv_relu_maxpool(cin=1, cout=4,
-                                                           csize=3, cstride=1, cpad=1,
-                                                           msize=2, mstride=2, mpad=0),
-                                        *conv_relu_maxpool(cin=4, cout=8,
-                                                           csize=3, cstride=1, cpad=1,
+        self.conv_model = nn.Sequential(*conv_relu_maxpool(cin=1, cout=8,
+                                                           csize=5, cstride=1, cpad=2,
                                                            msize=2, mstride=2, mpad=0),
                                         *conv_relu_maxpool(cin=8, cout=16,
-                                                           csize=3, cstride=1, cpad=1,
-                                                           msize=2, mstride=2, mpad=0),
-                                        *conv_relu_maxpool(cin=16, cout=16,
-                                                           csize=3, cstride=1, cpad=1,
-                                                           msize=2, mstride=2, mpad=0),
+                                                           csize=5, cstride=1, cpad=2,
+                                                           msize=2, mstride=2, mpad=0),                                       
                                         *conv_relu_maxpool(cin=16, cout=32,
-                                                           csize=3, cstride=1, cpad=1,
+                                                           csize=5, cstride=1, cpad=2,
                                                            msize=2, mstride=2, mpad=0),
                                         *conv_relu_maxpool(cin=32, cout=64,
-                                                           csize=3, cstride=1, cpad=1,
-                                                           msize=2, mstride=2, mpad=0),
-                                        *conv_relu_maxpool(cin=64, cout=64,
-                                                           csize=3, cstride=1, cpad=1,
+                                                           csize=5, cstride=1, cpad=2,
                                                            msize=2, mstride=2, mpad=0))
 
         print("initiated conv model")
@@ -234,8 +232,9 @@ class convClassifier(nn.Module):
         output_size = out_size(self.conv_model)
         print(output_size)
 
-        self.fc_model = nn.Sequential(*linear_relu(output_size, 256),
-                                      nn.Linear(256, num_classes))
+        self.fc_model = nn.Sequential(*linear_relu(output_size, 128, 0.2),
+                                      *linear_relu(128, 256, 0.2),
+                                      *linear_softmax(256, num_classes))
         print("initiated linear model")
 
     def forward(self, x):
@@ -375,7 +374,7 @@ def test(model, loader, f_loss, device):
 ###############################
 
 def generate_unique_logpath(logdir, raw_run_name):
-    i = "withSamplerF1loss"
+    i = "0"
     while(True):
         run_name = raw_run_name + "_" + str(i)
         log_path = os.path.join(logdir, run_name)
@@ -432,7 +431,7 @@ if __name__ == '__main__':
     eval(f"{args.command}(args)")
     """
     ##### learning loop #####
-    epochs = 10
+    epochs = 20
 
     for t in range(epochs):
         start_time = time.time()

@@ -146,12 +146,16 @@ def conv_relu_maxpool(cin, cout, csize, cstride, cpad, msize, mstride, mpad):
             nn.ReLU(inplace=True),
             nn.MaxPool2d(msize, mstride, mpad)]
 
-# A linear base block
+# A linear base blocks
 
-
-def linear_relu(dim_in, dim_out):
-    return [nn.Linear(dim_in, dim_out),
+def linear_relu(dim_in, dim_out, p_dropout):
+    return [nn.Dropout(p_dropout),
+            nn.Linear(dim_in, dim_out),
             nn.ReLU(inplace=True)]
+
+def linear_softmax(dim_in, dim_out):
+    return [nn.Linear(dim_in, dim_out),
+            nn.Softmax()]
 
 # Compute convolution output
 def out_size(conv_model):
@@ -215,8 +219,9 @@ class convClassifier(nn.Module):
         output_size = out_size(self.conv_model)
         print(output_size)
 
-        self.fc_model = nn.Sequential(*linear_relu(output_size, 256),
-                                      nn.Linear(256, num_classes))
+        self.fc_model = nn.Sequential(*linear_relu(output_size, 128, 0.2),
+                                      *linear_relu(128, 256, 0.2),
+                                      *linear_softmax(256, num_classes))
         print("initiated linear model")
 
     def forward(self, x):
