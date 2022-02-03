@@ -66,7 +66,7 @@ class DatasetTransformer(torch.utils.data.Dataset):
 print(os.path.exists("/opt/ChallengeDeep/train/"))
 train_path = "/opt/ChallengeDeep/train/"
 # Little sample to try
-#train_path = "/usr/users/gpusdi1/gpusdi1_49/Bureau/sample_train"
+# train_path = "/usr/users/gpusdi1/gpusdi1_49/Bureau/sample_train"
 
 valid_ratio = 0.2
 
@@ -105,7 +105,7 @@ def sampler_(dataset,train_counts):
 
 ##### Generating Loaders #####
 num_workers = 4
-batch_size = 256
+batch_size = 512
 
 # Random sampler
 train_set_counts = [1983, 243570, 214, 638, 1326, 1328, 23797, 5781, 289, 18457, 536, 185, 1045, 1210, 
@@ -115,14 +115,14 @@ train_set_counts = [1983, 243570, 214, 638, 1326, 1328, 23797, 5781, 289, 18457,
 4391, 1285, 5604, 6996, 53387, 235, 632, 11490, 88, 2589, 2517, 388, 2086, 172, 727]
 
 print("creating sampler")
-sampler = sampler_(train_dataset,train_set_counts)
+#sampler = sampler_(train_dataset,train_set_counts)
 print("sampler created")
 
 # training loader
 train_loader = torch.utils.data.DataLoader(dataset=train_dataset,
                                            batch_size=batch_size,
                                            num_workers=num_workers,
-                                           shuffle=False, sampler = sampler)
+                                           shuffle=True)
 
 # validation loader
 valid_loader = torch.utils.data.DataLoader(dataset=valid_dataset,
@@ -151,6 +151,10 @@ def conv_relu_maxpool(cin, cout, csize, cstride, cpad, msize, mstride, mpad):
 def linear_relu(dim_in, dim_out):
     return [nn.Linear(dim_in, dim_out),
             nn.ReLU(inplace=True)]
+
+def linear_softmax(dim_in, dim_out):
+    return [nn.Linear(dim_in, dim_out),
+            nn.Softmax()]
 
 # Compute convolution output
 def out_size(conv_model):
@@ -360,7 +364,8 @@ def test(model, loader, f_loss, device):
         for i in range(86):
             acc_targets[i] = str(class_targets[i][0]) + '/' + str(class_targets[i][1])
         
-        print(acc_targets)
+        print(" Validation : Loss : {:.4f}, Acc : {:.4f}, Acc_targets :{}".format(
+            tot_loss/N, correct/N, acc_targets))
 
         return tot_loss/N, correct/N, acc_targets
 
@@ -370,16 +375,16 @@ def test(model, loader, f_loss, device):
 ###############################
 
 def generate_unique_logpath(logdir, raw_run_name):
-    i = "Fast_3"
+    i = "Night_Dumb_CNN"
     while(True):
         run_name = raw_run_name + "_" + str(i)
         log_path = os.path.join(logdir, run_name)
-        if os.path.isdir(log_path):
+        if os.path.exists(log_path):
             return log_path
 
 
 # 1- create the logs directory if it does not exist
-top_logdir = "./logs"
+top_logdir = "../logs"
 if not os.path.exists(top_logdir):
     os.mkdir(top_logdir)
 
@@ -436,8 +441,6 @@ if __name__ == '__main__':
             model, train_loader, f_loss, optimizer, device)
 
         val_loss, val_acc, acc_targets = test(model, valid_loader, f_loss, device)
-        print(" Validation : Loss : {:.4f}, Acc : {:.4f}".format(
-            val_loss, val_acc))
         model_checkpoint.update(val_loss)
 
         # Monitoring

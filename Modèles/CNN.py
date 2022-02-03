@@ -28,7 +28,7 @@ greyscale = torchvision.transforms.Grayscale(num_output_channels=1)
 invert = torchvision.transforms.functional.invert
 # Resize
 resize = torchvision.transforms.Resize((300,300))
-# Normalization
+# Normalization with computed values
 normalization = torchvision.transforms.Normalize(mean=[0.0988],std=[0.1444])
 
 
@@ -66,7 +66,7 @@ class DatasetTransformer(torch.utils.data.Dataset):
 print(os.path.exists("/opt/ChallengeDeep/train/"))
 train_path = "/opt/ChallengeDeep/train/"
 # Little sample to try
-# train_path = "/usr/users/gpusdi1/gpusdi1_49/Bureau/sample_train"
+#train_path = "/usr/users/gpusdi1/gpusdi1_49/Bureau/sample_train"
 
 valid_ratio = 0.2
 
@@ -103,7 +103,7 @@ def sampler_(dataset,train_counts):
 
 ##### Generating Loaders #####
 num_workers = 4
-batch_size = 128
+batch_size = 256
 
 # Random sampler
 train_set_counts = [1983, 243570, 214, 638, 1326, 1328, 23797, 5781, 289, 18457, 536, 185, 1045, 1210, 
@@ -301,7 +301,7 @@ def train(model, loader, f_loss, optimizer, device):
         correct += (predicted_targets == targets).sum().item()
 
 
-        if inputs.shape[0]==128 :
+        if inputs.shape[0]==batch_size :
             for i in range(86):
                 number_of_target = (targets == i).sum().item()
                 number_of_good_pred = ((predicted_targets == targets)*(targets == i)).sum().item()
@@ -353,7 +353,7 @@ def test(model, loader, f_loss, device):
             predicted_targets = outputs.argmax(dim=1)
             correct += (predicted_targets == targets).sum().item()
 
-            if inputs.shape[0]==128 :
+            if inputs.shape[0]==batch_size :
                 for i in range(86):
                     
                     number_of_target = (targets == i).sum().item()
@@ -366,7 +366,9 @@ def test(model, loader, f_loss, device):
         for i in range(86):
             acc_targets[i] = str(class_targets[i][0]) + '/' + str(class_targets[i][1])
         
-        return tot_loss/N, correct/N
+        print(acc_targets)
+
+        return tot_loss/N, correct/N, acc_targets
 
 
 ###############################
@@ -374,7 +376,7 @@ def test(model, loader, f_loss, device):
 ###############################
 
 def generate_unique_logpath(logdir, raw_run_name):
-    i = "0"
+    i = "Night_CNN"
     while(True):
         run_name = raw_run_name + "_" + str(i)
         log_path = os.path.join(logdir, run_name)
@@ -383,7 +385,7 @@ def generate_unique_logpath(logdir, raw_run_name):
 
 
 # 1- create the logs directory if it does not exist
-top_logdir = "./logs"
+top_logdir = "../logs"
 if not os.path.exists(top_logdir):
     os.mkdir(top_logdir)
 
@@ -439,7 +441,7 @@ if __name__ == '__main__':
         train_loss, train_acc = train(
             model, train_loader, f_loss, optimizer, device)
 
-        val_loss, val_acc = test(model, valid_loader, f_loss, device)
+        val_loss, val_acc, acc_targets = test(model, valid_loader, f_loss, device)
         print(" Validation : Loss : {:.4f}, Acc : {:.4f}".format(
             val_loss, val_acc))
         model_checkpoint.update(val_loss)
