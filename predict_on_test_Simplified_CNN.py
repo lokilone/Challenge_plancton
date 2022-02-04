@@ -60,6 +60,7 @@ print('Data loading started')
 #train_path = "/opt/ChallengeDeep/train/"
 dataset = datasets.ImageFolder(test_path, test_composed_transforms)
 print('Dataset Loaded')
+filenames = [dataset.samples[i][0].split('/')[-1] for i in range(len(dataset))]
 
 ##### Generating Loaders #####
 num_workers = 4
@@ -165,6 +166,7 @@ class convClassifier(nn.Module):
 
         output_size = out_size(self.conv_model)
         print(output_size)
+        print(num_classes)
 
         self.fc_model = nn.Sequential(*linear_relu(output_size, 256),
                                       nn.Linear(256, num_classes))
@@ -177,7 +179,8 @@ class convClassifier(nn.Module):
         return y
 
 
-model = convClassifier(num_classes=len(dataset.classes))
+num_classes = 86
+model = convClassifier(num_classes)
 
 use_gpu = torch.cuda.is_available()
 if use_gpu:
@@ -270,5 +273,10 @@ if __name__ == '__main__':
     ##### Save predictions csv #####
 
     print("saving predictions")
-    pd.DataFrame(np.int_(predictions)).to_csv(os.path.join(logpath,"sub.csv"), header = None, index = None)
+    
+    df = pd.DataFrame()
+    df['imgname'] = filenames
+    df['label'] = np.int_(predictions)
+    df.to_csv(os.path.join(logpath,"sub.csv"), header = True, index = None)
     print("saved predictions")
+

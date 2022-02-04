@@ -163,8 +163,6 @@ def out_size(conv_model):
     return np.prod(dummy_output.shape[1:])
 
 # Loss function (Adapté de Git)
-
-
 class F1_Loss(nn.Module):
     '''Calculate F1 score. Can work with gpu tensors
 
@@ -222,7 +220,10 @@ class convClassifier(nn.Module):
                                         *conv_relu_maxpool(cin=8, cout=16,
                                                            csize=3, cstride=1, cpad=1,
                                                            msize=2, mstride=2, mpad=0),
-                                        *conv_relu_maxpool(cin=16, cout=16,
+                                        *conv_relu_maxpool(cin=16, cout=32,
+                                                           csize=3, cstride=1, cpad=1,
+                                                           msize=2, mstride=2, mpad=0),
+                                        *conv_relu_maxpool(cin=32, cout=64,
                                                            csize=3, cstride=1, cpad=1,
                                                            msize=2, mstride=2, mpad=0))
 
@@ -241,8 +242,8 @@ class convClassifier(nn.Module):
         y = self.fc_model(x)
         return y
 
-
-model = convClassifier(num_classes=len(dataset.classes))
+num_classes = 86
+model = convClassifier(num_classes)
 
 use_gpu = torch.cuda.is_available()
 if use_gpu:
