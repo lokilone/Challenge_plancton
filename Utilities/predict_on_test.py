@@ -243,8 +243,6 @@ def best_run_model_logpath(logdir, raw_run_name, runName):
 
 # 1- create the logs directory if it does not exist
 top_logdir = "./logs"
-if not os.path.exists(top_logdir):
-    os.mkdir(top_logdir)
 
 logpath = best_run_model_logpath(top_logdir, "run", runName)
 print("Loading from {}".format(logpath))
