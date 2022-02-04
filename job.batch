@@ -1,0 +1,10 @@
+#!/bin/bash 
+
+#SBATCH --job-name=Night_Dumb_CNN_2
+#SBATCH --nodes=1
+#SBATCH --partition=gpu_prod_night
+#SBATCH --time=12:00:00
+#SBATCH --output=logslurms/Night_Dumb_CNN_2.out
+#SBATCH --error=logslurms/Night_Dumb_CNN_2.err
+
+python3 Simplified_CNN.py
