@@ -11,27 +11,6 @@ import time
 ##### Defining transforms #####
 ###############################
 
-# Images are B/W but in 3 channels, we only need one
-greyscale = torchvision.transforms.Grayscale(num_output_channels=1)
-# Negative
-invert = torchvision.transforms.functional.invert
-# Resize
-resize = torchvision.transforms.Resize((300,300))
-# Normalization
-normalization = torchvision.transforms.Normalize(mean=[0.0988],std=[0.1444])
-
-
-### Data Augmentation
-rotate = torchvision.transforms.RandomRotation((0, 360))
-flip = torchvision.transforms.RandomHorizontalFlip(p=0.5)
-flou = torchvision.transforms.GaussianBlur(kernel_size=(5, 9), sigma=(0.1, 1))
-
-# Compose transforms
-test_composed_transforms = torchvision.transforms.Compose([greyscale, invert, resize, torchvision.transforms.ToTensor(), normalization])
-
-train_composed_transforms = torchvision.transforms.Compose([greyscale, invert, flip, rotate, resize, torchvision.transforms.ToTensor(), normalization])
-
-
 class composed_transforms(torchvision.transforms.transforms.Compose):
     '''Contain the list and the compose transforms for the validation and the train set.
     The list of possible transformations for validation are :
@@ -47,27 +26,24 @@ class composed_transforms(torchvision.transforms.transforms.Compose):
         
         valid_list_transforms = []
         if greyscale:
-            valid_list_transforms+=[torchvision.transforms.Grayscale(num_output_channels=1)]
+            valid_list_transforms.append(torchvision.transforms.Grayscale(num_output_channels=1))
         if invert:
-            valid_list_transforms+=[torchvision.transforms.functional.invert]
+            valid_list_transforms.append(torchvision.transforms.functional.invert)
         if resize:
-            valid_list_transforms+=[torchvision.transforms.Resize((300,300))]
+            valid_list_transforms.append(torchvision.transforms.Resize((300,300)))
+        valid_list_transforms.append(torchvision.transforms.ToTensor())
         if normalization:
-            valid_list_transforms+=[torchvision.transforms.Normalize(mean=[0.0988],std=[0.1444])]
+            valid_list_transforms.append(torchvision.transforms.Normalize(mean=[0.0988],std=[0.1444]))
         self.valid_transforms = torchvision.transforms.Compose(valid_list_transforms)
-        self.valid_transforms_list = valid_list_transforms
 
         train_list_transforms = valid_list_transforms
         if rotate:
-            train_list_transforms+=[torchvision.transforms.RandomRotation((0, 360))]
+            train_list_transforms.insert(2, torchvision.transforms.RandomRotation((0, 360)))
         if flip:
-            train_list_transforms+=[torchvision.transforms.RandomHorizontalFlip(p=0.5)]
+            train_list_transforms.insert(3, torchvision.transforms.RandomHorizontalFlip(p=0.5))
         if blur:
-            train_list_transforms+=[torchvision.transforms.GaussianBlur(kernel_size=(5, 9), sigma=(0.1, 1))]
+            train_list_transforms.insert(4, torchvision.transforms.GaussianBlur(kernel_size=(5, 9), sigma=(0.1, 1)))
         self.train_transforms = torchvision.transforms.Compose(train_list_transforms)
-        self.train_transforms_list = train_list_transforms
-
-
 
 
 ########################
@@ -81,7 +57,11 @@ valid_ratio = 0.2
 train_path = "/opt/ChallengeDeep/train/"
 
 # Little sample to try
-#train_path = "/usr/users/gpusdi1/gpusdi1_49/Bureau/sample_train"
+train_path = "/usr/users/gpusdi1/gpusdi1_49/Bureau/sample_train"
+
+# Define transforms
+transforms = composed_transforms()
+train_composed_transforms = transforms.train_transforms
 
 print('data train loading...')
 dataset = torchvision.datasets.ImageFolder(train_path, train_composed_transforms)
@@ -166,9 +146,9 @@ def compute_global_mean_std(loader):
 ##### Display Some data #####
 #############################
 
-def display_data(n_samples):
+def display_data(n_samples, loader, dataset):
     class_names = dataset.classes
-    imgs, labels = next(iter(train_loader))
+    imgs, labels = next(iter(loader))
 
     fig = plt.figure(figsize=(30, 30), facecolor='w')
 
