@@ -73,6 +73,27 @@ class DatasetTransformer(torch.utils.data.Dataset):
         return len(self.base_dataset)
 
 
+#############################
+#####   Sampling Data   #####
+#############################
+
+def sampler_(dataset,train_counts):
+    start_time = time.time()
+    num_samples = len(dataset)
+    labels = [dataset[item][1] for item in range(len(dataset))]
+    label_end_time = time.time()
+    print('got labels in {} s'.format(label_end_time-start_time))
+
+    class_weights = 1./ np.array(train_counts)
+    classw_end_time = time.time()
+    print('got class weights in {} s'.format(classw_end_time-label_end_time))
+    weights = class_weights[labels]
+    weights = torch.from_numpy(weights)
+    weight_end_time = time.time()
+    print('got final weights in {} s'.format(weight_end_time-classw_end_time))
+    sampler = torch.utils.data.sampler.WeightedRandomSampler(weights, num_samples)
+    return sampler
+
 
 ########################
 ##### Loading Data #####
@@ -195,45 +216,61 @@ def compute_global_mean_std(loader):
 ##### Display Some data #####
 #############################
 
-def display_data(n_samples, loader, class_names):
-    imgs, labels = next(iter(loader))
+def display_data(n_samples, loader, labels = True, class_names=np.arange(86)):
+    if labels :
+        imgs, labels = next(iter(loader))
 
-    fig = plt.figure(figsize=(30, 30), facecolor='w')
+        fig = plt.figure(figsize=(30, 30), facecolor='w')
 
-    for col in range(n_samples):
-        ax = plt.subplot(2, n_samples, col+1)
-        plt.imshow(imgs[col, 0, :, :], vmin=0, vmax=1.0, cmap=cm.gray)
-        ax.set_title("{}".format(class_names[labels[0]]), fontsize=15)
-        ax.get_xaxis().set_visible(False)
-        ax.get_yaxis().set_visible(False)
+        for col in range(n_samples):
+            ax = plt.subplot(2, n_samples, col+1)
+            plt.imshow(imgs[col, 0, :, :], vmin=0, vmax=1.0, cmap=cm.gray)
+            ax.set_title("{}".format(class_names[labels[0]]), fontsize=15)
+            ax.get_xaxis().set_visible(False)
+            ax.get_yaxis().set_visible(False)
+        plt.savefig('img_train.png', bbox_inches='tight')
+        print('Saved Train Images')
+        plt.show()
+    else:
+        imgs = next(iter(loader))
 
-    plt.savefig('plancton_alban.png', bbox_inches='tight')
-    print('Saved Images')
-    plt.show()
+        fig = plt.figure(figsize=(30, 30), facecolor='w')
 
-Data_Loader = DataLoader()
-Data_Loader.Load_Train_Valid(train_composed_transforms=ComposedTransforms().train_transforms(normalization=False))
+        for col in range(n_samples):
+            ax = plt.subplot(2, n_samples, col+1)
+            plt.imshow(imgs[col][0, 0, :, :], vmin=0, vmax=1.0, cmap=cm.gray)
+            ax.get_xaxis().set_visible(False)
+            ax.get_yaxis().set_visible(False)
+        plt.savefig('img_test.png', bbox_inches='tight')
+        print('Saved Test Images')
+
+
+### Define what transformations you want to make
+# On train and test
+mean = 0.0988
+std = 0.1444
+resize = True
+normalization = True
+
+# Only on train
+rotate = False
+flip = False
+blur = False
+
+Transform = ComposedTransforms(mean = mean, std=std)
+test_composed_transforms = ComposedTransforms().valid_transforms(resize=resize, normalization=normalization)
+train_composed_transforms = ComposedTransforms().train_transforms(resize=resize, normalization=normalization, rotate=rotate, flip=flip, blur=blur)
+
+### Load data
+batch_size = 256
+
+Data_Loader = DataLoader(batch_size = batch_size)
+Data_Loader.Load_Train_Valid(train_composed_transforms=train_composed_transforms, valid_composed_transforms=test_composed_transforms)
+Data_Loader.Load_Test(test_composed_transforms=test_composed_transforms)
+
 train_loader = Data_Loader.train_loader
+test_loader = Data_Loader.test_loader
 
-display_data(10, train_loader, np.arange(86))
-
-#############################
-#####   Sampling Data   #####
-#############################
-
-def sampler_(dataset,train_counts):
-    start_time = time.time()
-    num_samples = len(dataset)
-    labels = [dataset[item][1] for item in range(len(dataset))]
-    label_end_time = time.time()
-    print('got labels in {} s'.format(label_end_time-start_time))
-
-    class_weights = 1./ np.array(train_counts)
-    classw_end_time = time.time()
-    print('got class weights in {} s'.format(classw_end_time-label_end_time))
-    weights = class_weights[labels]
-    weights = torch.from_numpy(weights)
-    weight_end_time = time.time()
-    print('got final weights in {} s'.format(weight_end_time-classw_end_time))
-    sampler = torch.utils.data.sampler.WeightedRandomSampler(weights, num_samples)
-    return sampler
+### Display data to check that everything is fine
+display_data(10, train_loader, labels=True)
+#display_data(10, test_loader, labels=False)
