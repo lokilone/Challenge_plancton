@@ -123,8 +123,18 @@ class DataLoader(torch.utils.data.dataloader.DataLoader):
         print("Transforming Train set")
         self.train_dataset = DatasetTransformer(train_subset, train_composed_transforms)
         if sampling:
-            print('Sampling Train')
-            print("le sampling n'est pas encore implémenté revenez plus tard")
+            print('Creating sampler')
+            train_counts = [1983, 243570, 214, 638, 1326, 1328, 23797, 5781, 289, 18457, 536, 185, 1045, 1210, 
+            686, 5570, 8402, 3060, 168, 953, 4764, 2825, 3242, 78, 37, 3916, 98, 8200, 576, 19225, 686, 4213, 336, 188, 
+            1459, 1869, 180000, 3538, 1091, 6056, 142, 33147, 2085, 170, 308, 14799, 4609, 156, 3900, 3983, 3111, 1988, 
+            5079, 244, 6368, 757, 1289, 12636, 42096, 10008, 3465, 269, 457, 10038, 8213, 372, 2314, 234, 590, 15431, 12954, 
+            4391, 1285, 5604, 6996, 53387, 235, 632, 11490, 88, 2589, 2517, 388, 2086, 172, 727]
+            sampler = sampler_(self.train_dataset,train_counts)
+            print('Sampler created')
+            self.train_loader = torch.utils.data.DataLoader(dataset=self.train_dataset,
+                                            batch_size=self.batch_size,
+                                            num_workers=self.num_workers,
+                                            sampler=sampler)
         else:
             self.train_loader = torch.utils.data.DataLoader(dataset=self.train_dataset,
                                             batch_size=self.batch_size,
