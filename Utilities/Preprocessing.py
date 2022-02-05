@@ -11,13 +11,13 @@ import time
 ##### Defining transforms #####
 ###############################
 
-class composed_transforms():
+class ComposedTransforms():
     '''Contain the list and the compose transforms for the validation and the train set.
     The list of possible transformations for validation are :
         - greyscale
         - invert
         - resize
-        - normalization 
+        - normalization \n
     For Train you can add Data Augmentation :
         - rotate
         - flip
@@ -59,65 +59,103 @@ class composed_transforms():
         return torchvision.transforms.Compose(train_list_transforms)
 
 
+class DatasetTransformer(torch.utils.data.Dataset):
+
+    def __init__(self, base_dataset, transform):
+        self.base_dataset = base_dataset
+        self.transform = transform
+
+    def __getitem__(self, index):
+        img, target = self.base_dataset[index]
+        return self.transform(img), target
+
+    def __len__(self):
+        return len(self.base_dataset)
+
+
 ########################
 ##### Loading Data #####
 ########################
 
-#class data_loader(torch.utils.data.dataloader.DataLoader):
+class DataLoader(torch.utils.data.dataloader.DataLoader):
 
-#    def __init__(self, valid_ration=0.2, train=True, train_path="/opt/ChallengeDeep/train/", test=False, test_path ="/opt/ChallengeDeep/test/", )
-valid_ratio = 0.2
+    def __init__(self, train_valid_path="/opt/ChallengeDeep/train/", valid_ratio=0.2, test_path = "/opt/ChallengeDeep/test/", num_workers = 4, batch_size = 256):
+        self.train_valid_path = train_valid_path
+        self.test_path = test_path
+        self.valid_ratio = valid_ratio
+        self.num_workers = num_workers
+        self.batch_size = batch_size
+        self.train_dataset = None
+        self.valid_dataset = None
+        self.test_dataset = None
+        self.train_loader = None
+        self.valid_loader = None
+        self.test_loader = None
 
-##### Load learning data
+    def Load_Train_Valid(self, train_composed_transforms=ComposedTransforms().train_transforms(), valid_composed_transforms=ComposedTransforms().valid_transforms(), sampling=False):
+        # Load Train_Validation set
+        print('Loading Train_Validation set')
+        dataset = torchvision.datasets.ImageFolder(self.train_valid_path)
 
-# Whole dataset
-# train_path = "/opt/ChallengeDeep/train/"
+        # Train test split
+        print('Splitting Data')
+        nb_train = round((1.0 - self.valid_ratio) * len(dataset))
+        nb_valid = len(dataset)-nb_train
+        train_subset, valid_subset = torch.utils.data.dataset.random_split(dataset, [nb_train, nb_valid])
+
+        # Transform Train
+        print("Transforming Train set")
+        self.train_dataset = DatasetTransformer(train_subset, train_composed_transforms).base_dataset
+
+        print(type(self.train_dataset))
+        if sampling:
+            print('Sampling Train')
+            print("le sampling n'est pas encore implémenté revenez plus tard")
+        else:
+            self.train_loader = torch.utils.data.DataLoader(dataset=self.train_dataset,
+                                            batch_size=self.batch_size,
+                                            num_workers=self.num_workers,
+                                            shuffle=True)
+
+        # Transform Validation
+        print("Transforming Validation set")
+        self.valid_dataset = DatasetTransformer(valid_subset, valid_composed_transforms)
+        self.valid_loader = torch.utils.data.DataLoader(dataset=self.valid_dataset,
+                                            batch_size=self.batch_size,
+                                            num_workers=self.num_workers,
+                                            shuffle=False)
+
+        # Data Inspect
+        print("The train set contains {} images, in {} batches".format(len(self.train_loader.dataset), len(self.train_loader)))
+        print("The validation set contains {} images, in {} batches".format(len(self.valid_loader.dataset), len(self.valid_loader)))
+
+
+
+    def Load_Test(self, test_composed_transforms=ComposedTransforms().valid_transforms()):
+        # Load Testing set
+        print('Loading Test set')
+        test_dataset = torchvision.datasets.ImageFolder(self.test_path)
+
+        # Transform Test
+        print("Transforming Test set")
+        self.test_dataset  = DatasetTransformer(test_dataset, test_composed_transforms).base_dataset
+        print(type(self.test_dataset))
+
+        self.test_loader = torch.utils.data.DataLoader(dataset=self.test_dataset,
+                                            batch_size=self.batch_size,
+                                            num_workers=self.num_workers,
+                                            shuffle=False)
+
+        # Data Inspect
+        print("The train set contains {} images, in {} batches".format(len(self.test_loader.dataset), len(self.test_loader)))
+
+
+
+
 
 # Little sample to try
-train_path = "/usr/users/gpusdi1/gpusdi1_49/Bureau/sample_train"
+# train_path = "/usr/users/gpusdi1/gpusdi1_49/Bureau/sample_train"
 
-# Define transforms
-transforms = composed_transforms()
-train_composed_transforms = transforms.train_transforms()
-
-print('data train loading...')
-dataset = torchvision.datasets.ImageFolder(train_path, train_composed_transforms)
-print('data train loaded')
-
-##### Load test data
-test_path = "/opt/ChallengeDeep/test/"
-
-#print('data test loading...')
-#dataset = torchvision.datasets.ImageFolder(train_path, valid_composed_transforms)
-#print('data test loaded')
-
-# Train test split
-nb_train = int((1.0 - valid_ratio) * len(dataset))
-nb_valid = len(dataset)-nb_train
-train_dataset, valid_dataset = torch.utils.data.dataset.random_split(dataset, [nb_train, nb_valid])
-print('data split')
-
-##### Generating Loaders #####
-num_workers = 4
-batch_size = 64
-
-# training loader
-train_loader = torch.utils.data.DataLoader(dataset=train_dataset,
-                                           batch_size=batch_size,
-                                           num_workers=num_workers,
-                                           shuffle=True)
-
-# validation loader
-valid_loader = torch.utils.data.DataLoader(dataset=valid_dataset,
-                                           batch_size=batch_size,
-                                           num_workers=num_workers,
-                                           shuffle=True)
-
-# Data Inspect
-print("The train set contains {} images, in {} batches".format(
-    len(train_loader.dataset), len(train_loader)))
-print("The validation set contains {} images, in {} batches".format(
-    len(valid_loader.dataset), len(valid_loader)))
 
 ############################
 ### Compute mean and std ###
@@ -180,7 +218,18 @@ def display_data(n_samples, loader, dataset):
     print('saved_images')
     plt.show()
 
-display_data(10, train_loader, dataset)
+Data_Loader = DataLoader()
+Data_Loader.train_valid_path = "/usr/users/gpusdi1/gpusdi1_49/Bureau/sample_train"
+Data_Loader.Load_Train_Valid()
+Data_Loader.Load_Test()
+
+train_loader = Data_Loader.train_loader
+train_dataset = Data_Loader.train_dataset
+
+print(type(train_dataset))
+
+
+display_data(10, train_loader, train_dataset)
 
 #############################
 #####   Sampling Data   #####
