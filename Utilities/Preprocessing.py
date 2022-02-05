@@ -73,6 +73,7 @@ class DatasetTransformer(torch.utils.data.Dataset):
         return len(self.base_dataset)
 
 
+
 ########################
 ##### Loading Data #####
 ########################
@@ -105,9 +106,7 @@ class DataLoader(torch.utils.data.dataloader.DataLoader):
 
         # Transform Train
         print("Transforming Train set")
-        self.train_dataset = DatasetTransformer(train_subset, train_composed_transforms).base_dataset
-
-        print(type(self.train_dataset))
+        self.train_dataset = DatasetTransformer(train_subset, train_composed_transforms)
         if sampling:
             print('Sampling Train')
             print("le sampling n'est pas encore implémenté revenez plus tard")
@@ -138,9 +137,7 @@ class DataLoader(torch.utils.data.dataloader.DataLoader):
 
         # Transform Test
         print("Transforming Test set")
-        self.test_dataset  = DatasetTransformer(test_dataset, test_composed_transforms).base_dataset
-        print(type(self.test_dataset))
-
+        self.test_dataset  = DatasetTransformer(test_dataset, test_composed_transforms)
         self.test_loader = torch.utils.data.DataLoader(dataset=self.test_dataset,
                                             batch_size=self.batch_size,
                                             num_workers=self.num_workers,
@@ -148,9 +145,6 @@ class DataLoader(torch.utils.data.dataloader.DataLoader):
 
         # Data Inspect
         print("The train set contains {} images, in {} batches".format(len(self.test_loader.dataset), len(self.test_loader)))
-
-
-
 
 
 # Little sample to try
@@ -201,8 +195,7 @@ def compute_global_mean_std(loader):
 ##### Display Some data #####
 #############################
 
-def display_data(n_samples, loader, dataset):
-    class_names = dataset.classes
+def display_data(n_samples, loader, class_names):
     imgs, labels = next(iter(loader))
 
     fig = plt.figure(figsize=(30, 30), facecolor='w')
@@ -215,21 +208,14 @@ def display_data(n_samples, loader, dataset):
         ax.get_yaxis().set_visible(False)
 
     plt.savefig('plancton_alban.png', bbox_inches='tight')
-    print('saved_images')
+    print('Saved Images')
     plt.show()
 
 Data_Loader = DataLoader()
-Data_Loader.train_valid_path = "/usr/users/gpusdi1/gpusdi1_49/Bureau/sample_train"
-Data_Loader.Load_Train_Valid()
-Data_Loader.Load_Test()
-
+Data_Loader.Load_Train_Valid(train_composed_transforms=ComposedTransforms().train_transforms(normalization=False))
 train_loader = Data_Loader.train_loader
-train_dataset = Data_Loader.train_dataset
 
-print(type(train_dataset))
-
-
-display_data(10, train_loader, train_dataset)
+display_data(10, train_loader, np.arange(86))
 
 #############################
 #####   Sampling Data   #####
