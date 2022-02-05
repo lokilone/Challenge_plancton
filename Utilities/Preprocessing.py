@@ -11,7 +11,7 @@ import time
 ##### Defining transforms #####
 ###############################
 
-class composed_transforms(torchvision.transforms.transforms.Compose):
+class composed_transforms():
     '''Contain the list and the compose transforms for the validation and the train set.
     The list of possible transformations for validation are :
         - greyscale
@@ -22,8 +22,11 @@ class composed_transforms(torchvision.transforms.transforms.Compose):
         - rotate
         - flip
         - blur'''
-    def __init__(self, greyscale=True, invert=True, resize=True, normalization=True, rotate=True, flip=True, blur=False):
-        
+    def __init__(self, mean = 0.0988, std=0.1444):
+        self.mean = mean
+        self.std = std
+    
+    def valid_transforms(self, greyscale=True, invert=True, resize=True, normalization=True):
         valid_list_transforms = []
         if greyscale:
             valid_list_transforms.append(torchvision.transforms.Grayscale(num_output_channels=1))
@@ -33,28 +36,42 @@ class composed_transforms(torchvision.transforms.transforms.Compose):
             valid_list_transforms.append(torchvision.transforms.Resize((300,300)))
         valid_list_transforms.append(torchvision.transforms.ToTensor())
         if normalization:
-            valid_list_transforms.append(torchvision.transforms.Normalize(mean=[0.0988],std=[0.1444]))
-        self.valid_transforms = torchvision.transforms.Compose(valid_list_transforms)
+            valid_list_transforms.append(torchvision.transforms.Normalize(mean=[self.mean],std=[self.std]))
+        return torchvision.transforms.Compose(valid_list_transforms)
 
-        train_list_transforms = valid_list_transforms
+    def train_transforms(self, greyscale=True, invert=True, resize=True, normalization=True, rotate=True, flip=True, blur=False):
+        train_list_transforms = []
+        if greyscale:
+            train_list_transforms.append(torchvision.transforms.Grayscale(num_output_channels=1))
+        if invert:
+            train_list_transforms.append(torchvision.transforms.functional.invert)
         if rotate:
-            train_list_transforms.insert(2, torchvision.transforms.RandomRotation((0, 360)))
+            train_list_transforms.append(torchvision.transforms.RandomRotation((0, 360)))
         if flip:
-            train_list_transforms.insert(3, torchvision.transforms.RandomHorizontalFlip(p=0.5))
+            train_list_transforms.append(3, torchvision.transforms.RandomHorizontalFlip(p=0.5))
         if blur:
-            train_list_transforms.insert(4, torchvision.transforms.GaussianBlur(kernel_size=(5, 9), sigma=(0.1, 1)))
-        self.train_transforms = torchvision.transforms.Compose(train_list_transforms)
+            train_list_transforms.append(torchvision.transforms.GaussianBlur(kernel_size=(5, 9), sigma=(0.1, 1)))
+        if resize:
+            train_list_transforms.append(torchvision.transforms.Resize((300,300)))
+        train_list_transforms.append(torchvision.transforms.ToTensor())
+        if normalization:
+            train_list_transforms.append(torchvision.transforms.Normalize(mean=[self.mean],std=[self.std]))
+        return torchvision.transforms.Compose(train_list_transforms)
 
 
 ########################
 ##### Loading Data #####
 ########################
+
+class data_loader(torch.utils.data.dataloader.DataLoader):
+
+    def __init__(self, valid_ration=0.2, train=True, train_path="/opt/ChallengeDeep/train/", test=False, test_path ="/opt/ChallengeDeep/test/", )
 valid_ratio = 0.2
 
 ##### Load learning data
 
 # Whole dataset
-train_path = "/opt/ChallengeDeep/train/"
+# train_path = "/opt/ChallengeDeep/train/"
 
 # Little sample to try
 train_path = "/usr/users/gpusdi1/gpusdi1_49/Bureau/sample_train"
@@ -170,7 +187,7 @@ def display_data(n_samples, loader, dataset):
 def sampler_(dataset,train_counts):
     start_time = time.time()
     num_samples = len(dataset)
-    labels = [dataset[item][1] for item in tqdm(range(len(dataset)))]
+    labels = [dataset[item][1] for item in range(len(dataset))]
     label_end_time = time.time()
     print('got labels in {} s'.format(label_end_time-start_time))
 
