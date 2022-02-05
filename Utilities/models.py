@@ -244,6 +244,112 @@ class convClassifier(nn.Module):
                                           *nn.Linear(256, num_classes))
             print("initiated linear model")
         
+        elif model_name == 'minimal':
+            super(convClassifier, self).__init__()
+            self.conv_model = nn.Sequential(*items.conv_relu_maxpool(cin=1, cout=8,
+                                                               csize=3, cstride=1, cpad=1,
+                                                               msize=2, mstride=2, mpad=0),
+                                            *items.conv_relu_maxpool(cin=8, cout=16,
+                                                               csize=3, cstride=1, cpad=1,
+                                                               msize=2, mstride=2, mpad=0),
+                                            *items.conv_relu_maxpool(cin=16, cout=32,
+                                                               csize=5, cstride=1, cpad=2,
+                                                               msize=2, mstride=2, mpad=0),
+                                            *items.conv_relu_maxpool(cin=32, cout=64,
+                                                               csize=5, cstride=1, cpad=2,
+                                                               msize=2, mstride=2, mpad=0),
+                                            *items.conv_relu_maxpool(cin=64, cout=64,
+                                                               csize=5, cstride=1, cpad=2,
+                                                               msize=2, mstride=2, mpad=0),
+                                            *items.conv_relu_maxpool(cin=64, cout=128,
+                                                               csize=7, cstride=1, cpad=3,
+                                                               msize=2, mstride=2, mpad=0))
+            print("initiated conv model")
+            dummy_input = torch.zeros(1, 1, 300, 300)
+            output_size = items.out_size(self.conv_model, dummy_input)
+            print(output_size)
+            self.fc_model = nn.Sequential(*items.linear_relu(output_size, 128, 0.2),
+                                          *items.linear_relu(128, 256, 0.2),
+                                          *nn.Linear(256, num_classes))
+            print("initiated linear model")
+        
+        elif model_name == 'minimal_softmax':
+            super(convClassifier, self).__init__()
+            self.conv_model = nn.Sequential(*items.conv_relu_maxpool(cin=1, cout=8,
+                                                               csize=3, cstride=1, cpad=1,
+                                                               msize=2, mstride=2, mpad=0),
+                                            *items.conv_relu_maxpool(cin=8, cout=16,
+                                                               csize=3, cstride=1, cpad=1,
+                                                               msize=2, mstride=2, mpad=0),
+                                            *items.conv_relu_maxpool(cin=16, cout=32,
+                                                               csize=5, cstride=1, cpad=2,
+                                                               msize=2, mstride=2, mpad=0),
+                                            *items.conv_relu_maxpool(cin=32, cout=64,
+                                                               csize=5, cstride=1, cpad=2,
+                                                               msize=2, mstride=2, mpad=0),
+                                            *items.conv_relu_maxpool(cin=64, cout=64,
+                                                               csize=5, cstride=1, cpad=2,
+                                                               msize=2, mstride=2, mpad=0),
+                                            *items.conv_relu_maxpool(cin=64, cout=128,
+                                                               csize=7, cstride=1, cpad=3,
+                                                               msize=2, mstride=2, mpad=0))
+            print("initiated conv model")
+            dummy_input = torch.zeros(1, 1, 300, 300)
+            output_size = items.out_size(self.conv_model, dummy_input)
+            print(output_size)
+            self.fc_model = nn.Sequential(*items.linear_relu(output_size, 128, 0.2),
+                                          *items.linear_relu(128, 256, 0.2),
+                                          *items.linear_softmax(256, num_classes))
+            print("initiated linear model")
+        
+        elif model_name == 'resnet':
+            super(convClassifier, self).__init__()
+            self.conv_model = torchvision.models.resnet101(pretrained=True)
+            print("initiated conv model")
+            dummy_input = torch.zeros(1, 3, 300, 300)
+            output_size = items.out_size(self.conv_model, dummy_input)
+            print(output_size)
+            self.fc_model = nn.Sequential(*items.linear_relu(output_size, 128, 0.2),
+                                          *items.linear_relu(128, 256, 0.2),
+                                          *nn.Linear(256, num_classes))
+            print("initiated linear model")
+        
+        elif model_name == 'resnet152':
+            super(convClassifier, self).__init__()
+            self.conv_model = torchvision.models.resnet152(pretrained=True)
+            print("initiated conv model")
+            dummy_input = torch.zeros(1, 3, 300, 300)
+            output_size = items.out_size(self.conv_model, dummy_input)
+            print(output_size)
+            self.fc_model = nn.Sequential(*items.linear_relu(output_size, 128, 0.2),
+                                          *items.linear_relu(128, 256, 0.2),
+                                          *nn.Linear(256, num_classes))
+            print("initiated linear model")
+        
+        elif model_name == 'vgg':
+            super(convClassifier, self).__init__()
+            self.conv_model = torchvision.models.vgg16(pretrained=True)
+            print("initiated conv model")
+            dummy_input = torch.zeros(1, 3, 300, 300)
+            output_size = items.out_size(self.conv_model, dummy_input)
+            print(output_size)
+            self.fc_model = nn.Sequential(*items.linear_relu(output_size, 128, 0.2),
+                                          *items.linear_relu(128, 256, 0.2),
+                                          *nn.Linear(256, num_classes))
+            print("initiated linear model")
+        
+        elif model_name == 'vgg19':
+            super(convClassifier, self).__init__()
+            self.conv_model = torchvision.models.vgg19(pretrained=True)
+            print("initiated conv model")
+            dummy_input = torch.zeros(1, 3, 300, 300)
+            output_size = items.out_size(self.conv_model, dummy_input)
+            print(output_size)
+            self.fc_model = nn.Sequential(*items.linear_relu(output_size, 128, 0.2),
+                                          *items.linear_relu(128, 256, 0.2),
+                                          *nn.Linear(256, num_classes))
+            print("initiated linear model")
+        
     def forward(self, x):
         x = self.conv_model(x).view(x.size(dim=0), -1)
         y = self.fc_model(x)

@@ -1,17 +1,11 @@
 import torch
 import argparse
 import logging
-import pathlib
 import torchvision
-import torchvision.datasets as datasets
-import torchvision.transforms
 
 from Utilities import models
 from Utilities import Preprocessing
 
-import pandas as pd
-
-import os.path
 import sys
 import time
 
@@ -31,8 +25,8 @@ if __name__ == '__main__':
     parser.add_argument(
         '--model',
         type=str,
-        choices=['custom1', 'custom2', 'resnet', 'vgg'],
-        default='custom'
+        choices=['custom1', 'custom2', 'minimal', 'minimal_softmax', 'resnet', 'resnet152', 'vgg', 'vgg19'],
+        default='minimal'
     )
 
     parser.add_argument(
@@ -45,7 +39,7 @@ if __name__ == '__main__':
     parser.add_argument(
         '--n_epochs',
         type=int,
-        default=10
+        default=20
     )
 
     parser.add_argument(
@@ -86,7 +80,7 @@ if __name__ == '__main__':
     )
 
     parser.add_argument(
-        '--preprocessing',
+        '--augmentation',
         nargs='*',
         choices=['flip', 'rotate', 'blur'],
         default = []

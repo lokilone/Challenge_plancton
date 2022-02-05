@@ -1,0 +1,10 @@
+#!/bin/bash 
+
+#SBATCH --job-name=vgg19
+#SBATCH --nodes=1
+#SBATCH --partition=gpu_prod_long
+#SBATCH --time=48:00:00
+#SBATCH --output=../logslurms/vgg19.out
+#SBATCH --error=../logslurms/vgg19.err
+
+python3 ../main.py --mode train --model vgg19 --loss cross_entropy --batch_size=64 --run_name vgg19 --preprocessing greyscale3 invert centercrop totensor
