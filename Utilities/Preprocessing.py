@@ -25,37 +25,31 @@ class ComposedTransforms():
     def __init__(self, mean = 0.0988, std=0.1444):
         self.mean = mean
         self.std = std
-    
-    def valid_transforms(self, greyscale=True, invert=True, resize=True, normalization=True):
-        valid_list_transforms = []
-        if greyscale:
-            valid_list_transforms.append(torchvision.transforms.Grayscale(num_output_channels=1))
-        if invert:
-            valid_list_transforms.append(torchvision.transforms.functional.invert)
-        if resize:
-            valid_list_transforms.append(torchvision.transforms.Resize((300,300)))
-        valid_list_transforms.append(torchvision.transforms.ToTensor())
-        if normalization:
-            valid_list_transforms.append(torchvision.transforms.Normalize(mean=[self.mean],std=[self.std]))
-        return torchvision.transforms.Compose(valid_list_transforms)
+        self.transform_compendium = {
+            'greyscale' : torchvision.transforms.Grayscale(num_output_channels=1),
+            'greyscale3' : torchvision.transforms.Grayscale(num_output_channels=3),
+            'invert' : torchvision.transforms.functional.invert,
+            'resize' : torchvision.transforms.Resize((300,300)),
+            'centercrop' : torchvision.transforms.CenterCrop(300),
+            'totensor' : torchvision.transforms.ToTensor(),
+            'normalization' : torchvision.transforms.Normalize(mean=[self.mean],std=[self.std]),
+            'rotate' : torchvision.transforms.RandomRotation((0, 360)),
+            'flip' : torchvision.transforms.RandomHorizontalFlip(p=0.5),
+            'blur' : torchvision.transforms.GaussianBlur(kernel_size=(5, 9), sigma=(0.1, 1))
+            }
 
-    def train_transforms(self, greyscale=True, invert=True, resize=True, normalization=True, rotate=True, flip=True, blur=False):
+    def test_transforms(self, preprocessing_seq = None):
+        test_list_transforms = []
+        for op in preprocessing_seq :
+            test_list_transforms.append(self.transform_compendium[op])
+        return torchvision.transforms.Compose(test_list_transforms)
+
+    def train_transforms(self, preprocessing_seq = None, augmentation_seq = None):
         train_list_transforms = []
-        if greyscale:
-            train_list_transforms.append(torchvision.transforms.Grayscale(num_output_channels=1))
-        if invert:
-            train_list_transforms.append(torchvision.transforms.functional.invert)
-        if rotate:
-            train_list_transforms.append(torchvision.transforms.RandomRotation((0, 360)))
-        if flip:
-            train_list_transforms.append(torchvision.transforms.RandomHorizontalFlip(p=0.5))
-        if blur:
-            train_list_transforms.append(torchvision.transforms.GaussianBlur(kernel_size=(5, 9), sigma=(0.1, 1)))
-        if resize:
-            train_list_transforms.append(torchvision.transforms.Resize((300,300)))
-        train_list_transforms.append(torchvision.transforms.ToTensor())
-        if normalization:
-            train_list_transforms.append(torchvision.transforms.Normalize(mean=[self.mean],std=[self.std]))
+        for op in preprocessing_seq :
+            train_list_transforms.append(self.transform_compendium[op])
+        for op in augmentation_seq : 
+            train_list_transforms.append(self.transform_compendium[op])
         return torchvision.transforms.Compose(train_list_transforms)
 
 

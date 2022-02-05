@@ -2,10 +2,41 @@ import torch
 import torch.nn as nn
 import torch.nn.functional
 
+import numpy as np
+
+####################################
+##### Model construction items #####
+####################################
+
+# A convolutional base block
+def conv_relu_maxpool(cin, cout, csize, cstride, cpad, msize, mstride, mpad):
+    return [nn.Conv2d(cin, cout, csize, cstride, cpad),
+            nn.ReLU(inplace=True),
+            nn.MaxPool2d(msize, mstride, mpad)]
+
+# Linear base blocks
+def linear_relu(dim_in, dim_out, p_dropout):
+    return [nn.Dropout(p_dropout),
+            nn.Linear(dim_in, dim_out),
+            nn.ReLU(inplace=True)]
+
+
+def linear_softmax(dim_in, dim_out):
+    return [nn.Linear(dim_in, dim_out),
+            nn.Softmax()]
+
+# Dropout layerv (#To add, currently exists within linear)
+
+
+# Compute convolutional layers output size
+def out_size(conv_model, dummy_input):
+    dummy_output = conv_model(dummy_input)
+    return np.prod(dummy_output.shape[1:])
+
+
 ####################################
 ## Earlystopping Checkpoint class ##
 ####################################
-
 
 class ModelCheckpoint:
 
@@ -23,9 +54,14 @@ class ModelCheckpoint:
 ####################################
 ########## Loss functions ##########
 ####################################
+
+def get_loss(loss_arg):
+    if loss_arg == 'f1':
+        return F1_Loss()
+    elif loss_arg == 'cross_entropy':
+        return torch.nn.CrossEntropyLoss()
+
 # F1 loss definition
-
-
 class F1_Loss(nn.Module):
 
     def __init__(self, epsilon=1e-7):
@@ -52,11 +88,10 @@ class F1_Loss(nn.Module):
         f1 = f1.clamp(min=self.epsilon, max=1-self.epsilon)  # clamp ?
         return 1 - f1.mean()
 
-# Return a loss function from a console argument
+####################################
+############ Optimizers ############
+####################################
 
-
-def loss(loss_arg):
-    if loss_arg == 'f1':
-        return F1_Loss()
-    elif loss_arg == 'cross_entropy':
-        return torch.nn.CrossEntropyLoss()
+def get_optimizer(optimizer, model):
+    if optimizer == 'adam':
+        return torch.optim.Adam(model.parameters())

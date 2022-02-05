@@ -9,7 +9,6 @@ import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 import torch.nn as nn
 import torch.nn.functional
-from torch.utils.tensorboard import SummaryWriter
 
 import numpy as np
 import pandas as pd
