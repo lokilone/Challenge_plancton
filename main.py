@@ -25,7 +25,7 @@ if __name__ == '__main__':
     parser.add_argument(
         '--model',
         type=str,
-        choices=['custom1', 'custom2', 'minimal', 'minimal_softmax', 'resnet', 'resnet152', 'vgg', 'vgg19'],
+        choices=['custom1', 'custom2', 'minimal', 'minimal_softmax', 'minimal_dropout', 'resnet', 'resnet152', 'vgg', 'vgg19'],
         default='minimal'
     )
 
