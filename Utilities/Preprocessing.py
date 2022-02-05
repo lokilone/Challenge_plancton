@@ -26,11 +26,49 @@ rotate = torchvision.transforms.RandomRotation((0, 360))
 flip = torchvision.transforms.RandomHorizontalFlip(p=0.5)
 flou = torchvision.transforms.GaussianBlur(kernel_size=(5, 9), sigma=(0.1, 1))
 
-
 # Compose transforms
 test_composed_transforms = torchvision.transforms.Compose([greyscale, invert, resize, torchvision.transforms.ToTensor(), normalization])
 
 train_composed_transforms = torchvision.transforms.Compose([greyscale, invert, flip, rotate, resize, torchvision.transforms.ToTensor(), normalization])
+
+
+class composed_transforms(torchvision.transforms.transforms.Compose):
+    '''Contain the list and the compose transforms for the validation and the train set.
+    The list of possible transformations for validation are :
+        - greyscale
+        - invert
+        - resize
+        - normalization 
+    For Train you can add Data Augmentation :
+        - rotate
+        - flip
+        - blur'''
+    def __init__(self, greyscale=True, invert=True, resize=True, normalization=True, rotate=True, flip=True, blur=False):
+        
+        valid_list_transforms = []
+        if greyscale:
+            valid_list_transforms+=[torchvision.transforms.Grayscale(num_output_channels=1)]
+        if invert:
+            valid_list_transforms+=[torchvision.transforms.functional.invert]
+        if resize:
+            valid_list_transforms+=[torchvision.transforms.Resize((300,300))]
+        if normalization:
+            valid_list_transforms+=[torchvision.transforms.Normalize(mean=[0.0988],std=[0.1444])]
+        self.valid_transforms = torchvision.transforms.Compose(valid_list_transforms)
+        self.valid_transforms_list = valid_list_transforms
+
+        train_list_transforms = valid_list_transforms
+        if rotate:
+            train_list_transforms+=[torchvision.transforms.RandomRotation((0, 360))]
+        if flip:
+            train_list_transforms+=[torchvision.transforms.RandomHorizontalFlip(p=0.5)]
+        if blur:
+            train_list_transforms+=[torchvision.transforms.GaussianBlur(kernel_size=(5, 9), sigma=(0.1, 1))]
+        self.train_transforms = torchvision.transforms.Compose(train_list_transforms)
+        self.train_transforms_list = train_list_transforms
+
+
+
 
 ########################
 ##### Loading Data #####
@@ -84,9 +122,9 @@ print("The train set contains {} images, in {} batches".format(
 print("The validation set contains {} images, in {} batches".format(
     len(valid_loader.dataset), len(valid_loader)))
 
-####################
-### Compute mean ###
-####################
+############################
+### Compute mean and std ###
+############################
 
 def compute_global_mean_std(loader):
     print("Computing train data mean")
@@ -127,6 +165,7 @@ def compute_global_mean_std(loader):
 #############################
 ##### Display Some data #####
 #############################
+
 def display_data(n_samples):
     class_names = dataset.classes
     imgs, labels = next(iter(train_loader))
@@ -144,7 +183,9 @@ def display_data(n_samples):
     print('saved_images')
     plt.show()
 
-# Random sampler
+#############################
+#####   Sampling Data   #####
+#############################
 
 def sampler_(dataset,train_counts):
     start_time = time.time()
