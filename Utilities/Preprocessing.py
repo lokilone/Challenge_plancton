@@ -48,7 +48,7 @@ class composed_transforms():
         if rotate:
             train_list_transforms.append(torchvision.transforms.RandomRotation((0, 360)))
         if flip:
-            train_list_transforms.append(3, torchvision.transforms.RandomHorizontalFlip(p=0.5))
+            train_list_transforms.append(torchvision.transforms.RandomHorizontalFlip(p=0.5))
         if blur:
             train_list_transforms.append(torchvision.transforms.GaussianBlur(kernel_size=(5, 9), sigma=(0.1, 1)))
         if resize:
@@ -63,9 +63,9 @@ class composed_transforms():
 ##### Loading Data #####
 ########################
 
-class data_loader(torch.utils.data.dataloader.DataLoader):
+#class data_loader(torch.utils.data.dataloader.DataLoader):
 
-    def __init__(self, valid_ration=0.2, train=True, train_path="/opt/ChallengeDeep/train/", test=False, test_path ="/opt/ChallengeDeep/test/", )
+#    def __init__(self, valid_ration=0.2, train=True, train_path="/opt/ChallengeDeep/train/", test=False, test_path ="/opt/ChallengeDeep/test/", )
 valid_ratio = 0.2
 
 ##### Load learning data
@@ -78,7 +78,7 @@ train_path = "/usr/users/gpusdi1/gpusdi1_49/Bureau/sample_train"
 
 # Define transforms
 transforms = composed_transforms()
-train_composed_transforms = transforms.train_transforms
+train_composed_transforms = transforms.train_transforms()
 
 print('data train loading...')
 dataset = torchvision.datasets.ImageFolder(train_path, train_composed_transforms)
@@ -179,6 +179,8 @@ def display_data(n_samples, loader, dataset):
     plt.savefig('plancton_alban.png', bbox_inches='tight')
     print('saved_images')
     plt.show()
+
+display_data(10, train_loader, dataset)
 
 #############################
 #####   Sampling Data   #####
