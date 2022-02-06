@@ -7,4 +7,4 @@
 #SBATCH --output=../logslurms/minimal_dpt.out
 #SBATCH --error=../logslurms/minimal_dpt.err
 
-python3 ../main.py --mode train --model minimal_dropout --loss cross_entropy --batch_size=256 --run_name minimal
+python3 ../main.py --mode train --model minimal_dropout --loss cross_entropy --batch_size=256 --run_name minimal_dpt
