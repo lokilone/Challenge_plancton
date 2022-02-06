@@ -1,0 +1,10 @@
+#!/bin/bash 
+
+#SBATCH --job-name=minimal_f1_norm
+#SBATCH --nodes=1
+#SBATCH --partition=gpu_prod_night
+#SBATCH --time=12:00:00
+#SBATCH --output=logslurms/minimal_f1_norm.out
+#SBATCH --error=logslurms/minimal_f1_norm.err
+
+python3 ../main.py --mode train --model minimal_softmax --loss f1 --batch_size=128 --run_name minimal_f1_normed --preprocessing greyscale invert centercrop totensor normalization

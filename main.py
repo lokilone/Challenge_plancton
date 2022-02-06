@@ -18,14 +18,12 @@ if __name__ == '__main__':
     parser.add_argument(
         'mode',
         type=str,
-        choices=['train', 'test'],
-        required=True
+        choices=['train', 'test']
     )
 
     parser.add_argument(
         'path',
-        type=str,
-        required=True
+        type=str
     )
 
     parser.add_argument(
@@ -113,7 +111,7 @@ if __name__ == '__main__':
 # Load and preprocess data 
 transforms = Preprocessing.ComposedTransforms()
 train_transforms = transforms.train_transforms(preprocessing_seq=args.preprocessing, augmentation_seq=args.augmentation)
-test_transforms = transforms.train_transforms(preprocessing_seq=args.preprocessing)
+test_transforms = transforms.test_transforms(preprocessing_seq=args.preprocessing)
 
 if args.debug:
     data_path = "/usr/users/gpusdi1/gpusdi1_49/Bureau/sample_train" # A small dataset used for debugging 

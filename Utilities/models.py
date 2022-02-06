@@ -24,7 +24,7 @@ class ModelHandler():
         - Training a model, saving model summary, best model earlystopping
         - Making test predictions and saving to the Kaggle challenge format
     '''
-    def __init__(self,model_name, f_loss, optimizer, run_name, batch_size):
+    def __init__(self,model_name, f_loss='f1', optimizer='adam', run_name = 'nameless', batch_size = '64'):
         self.model= convClassifier(model_name = model_name)
         self.f_loss= items.get_loss(f_loss)
         self.optimizer= items.get_optimizer(optimizer, self.model)
@@ -166,6 +166,29 @@ class ModelHandler():
             print(" Validation : Loss : {:.4f}, Acc : {:.4f}".format(tot_loss/N, correct/N))
 
             self.model_checkpoint.update(tot_loss/N)
+    
+    def score(self, loader):
+        print('entered scoring')
+        with torch.no_grad():
+            self.model.eval()
+
+            predictions, labels = [], []
+
+            for i, (inputs, targets) in enumerate(tqdm(loader)):
+
+                inputs, targets = inputs.to(self.device), targets.to(self.device)
+
+                # Forward pass
+                outputs = self.model(inputs)
+
+                # Accumulate
+                predictions += outputs
+                labels += targets
+            
+            loss = items.F1_Loss()
+            score = 1 - loss (predictions, targets)
+
+            print(" The f1 score on this model is : {:.4f}".format(score))
     
     def load_best(self):
         self.model.load_state_dict(torch.load(os.path.join(self.test_path, 'best_model.pt')))
