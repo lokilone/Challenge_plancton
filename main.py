@@ -43,7 +43,7 @@ if __name__ == '__main__':
         '--loss',
         type=str,
         choices=['f1', 'cross_entropy'],
-        default='f1'
+        default='cross_entropy'
     )
 
     parser.add_argument(
@@ -68,7 +68,7 @@ if __name__ == '__main__':
     parser.add_argument(
         '--batch_size',
         type=int,
-        default=64
+        default=256
     )
 
     parser.add_argument(
@@ -86,7 +86,7 @@ if __name__ == '__main__':
     parser.add_argument(
         '--run_name',
         type=str,
-        default='nameless'
+        default='final'
     )
 
     parser.add_argument(
@@ -100,7 +100,7 @@ if __name__ == '__main__':
         '--augmentation',
         nargs='*',
         choices=['flip', 'rotate', 'blur'],
-        default = []
+        default = ['flip', 'rotate']
     )
 
     print(sys.argv)
