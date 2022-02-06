@@ -1,0 +1,10 @@
+#!/bin/bash 
+
+#SBATCH --job-name=normalized_augmented_minimal_dpt
+#SBATCH --nodes=1
+#SBATCH --partition=gpu_prod_night
+#SBATCH --time=12:00:00
+#SBATCH --output=../logslurms/minimal_norm_augmented_dpt.out
+#SBATCH --error=../logslurms/minimal_norm_augmented_dpt.err
+
+python3 ../main.py --mode train --model minimal_dropout --loss cross_entropy --batch_size=256 --run_name minimal_normed_augmented_dpt --preprocessing greyscale invert centercrop totensor normalization --augmentation flip rotate

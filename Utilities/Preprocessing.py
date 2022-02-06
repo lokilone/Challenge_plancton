@@ -22,7 +22,7 @@ class ComposedTransforms():
         - rotate
         - flip
         - blur'''
-    def __init__(self, mean = 0.0988, std=0.1444, img_size = 300):
+    def __init__(self, mean = 0.0130, std= 0.0546, img_size = 300):
         self.mean = mean
         self.std = std
         self.imgsize=img_size
@@ -210,6 +210,7 @@ def compute_global_mean_std(loader):
     std_img[std_img == 0] = 1
     real_std = std_img.view(1,-1).mean()
 
+    print(f"mean : {real_mean}\nstd : {real_std}.")
     return real_mean, real_std
 
 
@@ -278,3 +279,8 @@ def display_data(n_samples, loader, labels = True, class_names=np.arange(86)):
 # ### Display data to check that everything is fine
 # display_data(10, train_loader, labels=True)
 # display_data(10, test_loader, labels=False)
+
+# Data_Loader = DataLoader()
+# Data_Loader.Load_Train_Valid()
+# valid_loader = Data_Loader.valid_loader
+# mean, std = compute_global_mean_std(valid_loader)

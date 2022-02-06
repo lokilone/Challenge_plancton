@@ -35,6 +35,9 @@ class ModelHandler():
         if not os.path.exists(top_logdir):
             os.mkdir(top_logdir)
         self.log_path = os.path.join(top_logdir, run_dir)
+        self.test_path = os.path.join('./jobs', self.log_path)
+        self.sub_path = './submissions'
+        self.run_name = run_name
         # Set Model checkpoint 
         self.model_checkpoint = items.ModelCheckpoint(self.log_path + "/best_model.pt", self.model)
         # Storage items
@@ -160,12 +163,12 @@ class ModelHandler():
                 acc_targets[i] = str(class_targets[i][0]) + \
                     '/' + str(class_targets[i][1])
             print("Acc_targets :{}".format(acc_targets))
-            print(" Training : Loss : {:.4f}, Acc : {:.4f}".format(tot_loss/N, correct/N))
+            print(" Validation : Loss : {:.4f}, Acc : {:.4f}".format(tot_loss/N, correct/N))
 
             self.model_checkpoint.update(tot_loss/N)
     
     def load_best(self):
-        self.model.load_state_dict(torch.load(os.path.join(self.log_path, 'best_model.pt')))
+        self.model.load_state_dict(torch.load(os.path.join(self.test_path, 'best_model.pt')))
         print(self.model.conv_model)
 
     def predict(self, loader):
@@ -174,7 +177,8 @@ class ModelHandler():
             self.model.eval()
             preds = []
             for i, inputs in enumerate(tqdm(loader)):
-                inputs = inputs[0].to(self.device)
+                inputs = inputs[0].view(1,1,300,300)
+                inputs = inputs.to(self.device)
                 outputs = self.model(inputs).max(1).indices
                 preds += outputs
             print("Test time : {}".format(time.time() - start_time))
@@ -186,7 +190,7 @@ class ModelHandler():
         dataset = loader.test_dataset.base_dataset
         self.filenames = [dataset.samples[i][0].split('/')[-1] for i in range(len(dataset))]
         # Get predictions 
-        self.predictios = self.predict(loader.test_dataset)
+        self.predictions = self.predict(loader.test_dataset)
         print("labeled images")
     
     def save_predictions(self):
@@ -194,7 +198,7 @@ class ModelHandler():
         df = pd.DataFrame()
         df['imgname'] = self.filenames
         df['label'] = np.int_(self.predictions)
-        df.to_csv(os.path.join(self.log_path,"sub.csv"), header = True, index = None)
+        df.to_csv(os.path.join(self.sub_path,self.run_name + ".csv"), header = True, index = None)
         print("saved predictions")
 
 #####################
@@ -287,17 +291,19 @@ class convClassifier(nn.Module):
                                             *items.conv_relu_maxpool(cin=8, cout=16,
                                                                csize=3, cstride=1, cpad=1,
                                                                msize=2, mstride=2, mpad=0),
-                                            nn.Dropout(p=0.2, inplace=True),
+                                            nn.Dropout(p=0.5, inplace=True),
                                             *items.conv_relu_maxpool(cin=16, cout=32,
                                                                csize=5, cstride=1, cpad=2,
                                                                msize=2, mstride=2, mpad=0),
+                                            nn.Dropout(p=0.5, inplace=True),
                                             *items.conv_relu_maxpool(cin=32, cout=64,
                                                                csize=5, cstride=1, cpad=2,
                                                                msize=2, mstride=2, mpad=0),
-                                            nn.Dropout(p=0.2, inplace=True),
+                                            nn.Dropout(p=0.5, inplace=True),
                                             *items.conv_relu_maxpool(cin=64, cout=64,
                                                                csize=5, cstride=1, cpad=2,
                                                                msize=2, mstride=2, mpad=0),
+                                            nn.Dropout(p=0.5, inplace=True),
                                             *items.conv_relu_maxpool(cin=64, cout=128,
                                                                csize=7, cstride=1, cpad=3,
                                                                msize=2, mstride=2, mpad=0))
