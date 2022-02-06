@@ -29,7 +29,9 @@ Optional run arguments : <br />
    
 ## Structural info
    &nbsp;&nbsp;&nbsp;&nbsp;     **main.py** : main script<br />
+   
    &nbsp;&nbsp;&nbsp;&nbsp;     **preprocessing.py** : Handle preprocessing, data augmentation and data loading, called in main<br />
+   
    &nbsp;&nbsp;&nbsp;&nbsp;     **models.py** : Contains model handler class and the current model zoo<br />
      &nbsp;&nbsp;&nbsp;&nbsp;    **Utilities** : Complementary python scripts, refer to Utilities/README.md<br />
    &nbsp;&nbsp;&nbsp;&nbsp;     **jobs** : A directory of bash scripts for running slurm jobs<br />
