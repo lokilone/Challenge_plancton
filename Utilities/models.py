@@ -7,7 +7,7 @@ import pandas as pd
 import numpy as np
 from tqdm import tqdm
 
-import items
+from Utilities import items 
 
 import os
 import time
@@ -51,40 +51,42 @@ class ModelHandler():
         print('loaded model on {}'.format(self.device))
     
     def save_summary(self, args, preprocessing, augmentation):
+        if not os.path.exists(self.log_path):
+            os.mkdir(self.log_path)
         summary_file = open(self.log_path + "/summary.txt", 'w')
         summary_text = """
         Executed command
+        {}
         ================
-        {}
         Preprocessing
-        =======
         {}
+        ================
         Augmentation
-        =======
         {}
+        ================
         Model summary
-        =============
         {}
+
         {} trainable parameters
+        ================
         Optimizer
-        ========
         {}
+        ================
         Loss
-        ========
         {}
         """.format(args, preprocessing, augmentation, self.model, sum(p.numel() for p in self.model.parameters() if p.requires_grad), self.optimizer, self.f_loss)
         summary_file.write(summary_text)
         summary_file.close()
         print('Saved a summary of this run')
     
-    def train(self, loader):
+    def train(self, loader, num_classes = 86):
         print('entered train')
         self.model.train()
 
         N = 0
         tot_loss, correct = 0.0, 0.0
         class_targets = {}
-        for i in range(86):
+        for i in range(num_classes):
             class_targets[i] = [0, 0]
 
         for i, (inputs, targets) in enumerate(tqdm(loader)):
@@ -108,20 +110,20 @@ class ModelHandler():
 
             # Acc targets stuff
             if inputs.shape[0] == self.batch_size:
-                for i in range(86):
+                for i in range(num_classes):
                     number_of_target = (targets == i).sum().item()
                     number_of_good_pred = (
                         (predicted_targets == targets)*(targets == i)).sum().item()
                     class_targets[i][0] += number_of_good_pred
                     class_targets[i][1] += number_of_target
         acc_targets = {}
-        for i in range(86):
+        for i in range(num_classes):
             acc_targets[i] = str(class_targets[i][0]) + \
                 '/' + str(class_targets[i][1])
         print("Acc_targets :{}".format(acc_targets))
         print(" Training : Loss : {:.4f}, Acc : {:.4f}".format(tot_loss/N, correct/N))
 
-    def valid(self, loader):
+    def valid(self, loader, num_classes=86):
         print('entered validation')
         with torch.no_grad():
             self.model.eval()
@@ -129,7 +131,7 @@ class ModelHandler():
             N = 0
             tot_loss, correct = 0.0, 0.0
             class_targets = {}
-            for i in range(86):
+            for i in range(num_classes):
                 class_targets[i] = [0, 0]
 
             for i, (inputs, targets) in enumerate(tqdm(loader)):
@@ -147,14 +149,14 @@ class ModelHandler():
 
                 # Acc target stuff
                 if inputs.shape[0] == self.batch_size:
-                    for i in range(86):
+                    for i in range(num_classes):
                         number_of_target = (targets == i).sum().item()
                         number_of_good_pred = (
                             (predicted_targets == targets)*(targets == i)).sum().item()
                         class_targets[i][0] += number_of_good_pred
                         class_targets[i][1] += number_of_target
             acc_targets = {}
-            for i in range(86):
+            for i in range(num_classes):
                 acc_targets[i] = str(class_targets[i][0]) + \
                     '/' + str(class_targets[i][1])
             print("Acc_targets :{}".format(acc_targets))
@@ -270,7 +272,7 @@ class convClassifier(nn.Module):
             print(output_size)
             self.fc_model = nn.Sequential(*items.linear_relu(output_size, 128, 0.2),
                                           *items.linear_relu(128, 256, 0.2),
-                                          *nn.Linear(256, num_classes))
+                                          nn.Linear(256, num_classes))
             print("initiated linear model")
         
         elif model_name == 'minimal_dropout':

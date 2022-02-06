@@ -37,6 +37,13 @@ if __name__ == '__main__':
     )
 
     parser.add_argument(
+        '--optimizer',
+        type=str,
+        choices=['adam'],
+        default='adam'
+    )
+
+    parser.add_argument(
         '--n_epochs',
         type=int,
         default=20
@@ -88,16 +95,15 @@ if __name__ == '__main__':
 
     print(sys.argv)
     args = parser.parse_args()
-    eval(f"{args.command}(args)")
 
 # Load and preprocess data 
 transforms = Preprocessing.ComposedTransforms()
 dataloader = Preprocessing.DataLoader(valid_ratio=args.valid, num_workers=args.num_workers, batch_size=args.batch_size)
-train_transforms = dataloader.train_transforms(preprocessing_seq=args.preprocessing, augmentation_seq=args.augmentation)
-test_transforms = dataloader.train_transforms(preprocessing_seq=args.preprocessing)
+train_transforms = transforms.train_transforms(preprocessing_seq=args.preprocessing, augmentation_seq=args.augmentation)
+test_transforms = transforms.train_transforms(preprocessing_seq=args.preprocessing)
 
 if args.mode == 'train':
-    dataloader.Load_Train_Valid(train_transforms=train_transforms, valid_transforms=test_transforms)
+    dataloader.Load_Train_Valid(train_composed_transforms=train_transforms, valid_composed_transforms=test_transforms)
     train_loader = dataloader.train_loader
     valid_loader = dataloader.valid_loader
 
@@ -106,7 +112,7 @@ elif args.mode == 'test':
     test_loader = dataloader.test_loader
 
 # Getting model
-handler = models.ModelHandler(model_name = args.model, f_loss=args.f_loss, optimizer=args.optimizer, run_name=args.run_name, batch_size=args.batch_size)
+handler = models.ModelHandler(model_name = args.model, f_loss=args.loss, optimizer=args.optimizer, run_name=args.run_name, batch_size=args.batch_size)
 handler.toDevice()
 
 # Main script 

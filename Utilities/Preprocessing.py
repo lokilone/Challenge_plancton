@@ -22,14 +22,15 @@ class ComposedTransforms():
         - rotate
         - flip
         - blur'''
-    def __init__(self, mean = 0.0988, std=0.1444):
+    def __init__(self, mean = 0.0988, std=0.1444, img_size = 300):
         self.mean = mean
         self.std = std
+        self.imgsize=img_size
         self.transform_compendium = {
             'greyscale' : torchvision.transforms.Grayscale(num_output_channels=1),
             'greyscale3' : torchvision.transforms.Grayscale(num_output_channels=3),
             'invert' : torchvision.transforms.functional.invert,
-            'resize' : torchvision.transforms.Resize((300,300)),
+            'resize' : torchvision.transforms.Resize((300, 300)),
             'centercrop' : torchvision.transforms.CenterCrop(300),
             'totensor' : torchvision.transforms.ToTensor(),
             'normalization' : torchvision.transforms.Normalize(mean=[self.mean],std=[self.std]),
@@ -38,13 +39,13 @@ class ComposedTransforms():
             'blur' : torchvision.transforms.GaussianBlur(kernel_size=(5, 9), sigma=(0.1, 1))
             }
 
-    def test_transforms(self, preprocessing_seq = None):
+    def test_transforms(self, preprocessing_seq = ['greyscale', 'invert', 'centercrop', 'totensor']):
         test_list_transforms = []
         for op in preprocessing_seq :
             test_list_transforms.append(self.transform_compendium[op])
         return torchvision.transforms.Compose(test_list_transforms)
 
-    def train_transforms(self, preprocessing_seq = None, augmentation_seq = None):
+    def train_transforms(self, preprocessing_seq = ['greyscale', 'invert', 'centercrop', 'totensor'], augmentation_seq = []):
         train_list_transforms = []
         for op in preprocessing_seq :
             train_list_transforms.append(self.transform_compendium[op])
@@ -108,7 +109,7 @@ class DataLoader(torch.utils.data.dataloader.DataLoader):
         self.valid_loader = None
         self.test_loader = None
 
-    def Load_Train_Valid(self, train_composed_transforms=ComposedTransforms().train_transforms(), valid_composed_transforms=ComposedTransforms().valid_transforms(), sampling=False):
+    def Load_Train_Valid(self, train_composed_transforms=ComposedTransforms().train_transforms(), valid_composed_transforms=ComposedTransforms().test_transforms(), sampling=False):
         # Load Train_Validation set
         print('Loading Train_Validation set')
         dataset = torchvision.datasets.ImageFolder(self.train_valid_path)
@@ -155,7 +156,7 @@ class DataLoader(torch.utils.data.dataloader.DataLoader):
 
 
 
-    def Load_Test(self, test_composed_transforms=ComposedTransforms().valid_transforms()):
+    def Load_Test(self, test_composed_transforms=ComposedTransforms().test_transforms()):
         # Load Testing set
         print('Loading Test set')
         test_dataset = torchvision.datasets.ImageFolder(self.test_path)
@@ -236,13 +237,13 @@ def display_data(n_samples, loader, labels = True, class_names=np.arange(86)):
         print('Saved Train Images')
         plt.show()
     else:
-        imgs = next(iter(loader))
+        imgs, labels = next(iter(loader))
 
         fig = plt.figure(figsize=(30, 30), facecolor='w')
 
         for col in range(n_samples):
             ax = plt.subplot(2, n_samples, col+1)
-            plt.imshow(imgs[col][0, 0, :, :], vmin=0, vmax=1.0, cmap=cm.gray)
+            plt.imshow(imgs[col, 0, :, :], vmin=0, vmax=1.0, cmap=cm.gray)
             ax.get_xaxis().set_visible(False)
             ax.get_yaxis().set_visible(False)
         plt.savefig('img_test.png', bbox_inches='tight')
@@ -262,8 +263,8 @@ flip = False
 blur = False
 
 Transform = ComposedTransforms(mean = mean, std=std)
-test_composed_transforms = ComposedTransforms().valid_transforms(resize=resize, normalization=normalization)
-train_composed_transforms = ComposedTransforms().train_transforms(resize=resize, normalization=normalization, rotate=rotate, flip=flip, blur=blur)
+test_composed_transforms = ComposedTransforms().test_transforms()
+train_composed_transforms = ComposedTransforms().train_transforms()
 
 ### Load data
 batch_size = 256
@@ -277,4 +278,4 @@ test_loader = Data_Loader.test_loader
 
 ### Display data to check that everything is fine
 display_data(10, train_loader, labels=True)
-#display_data(10, test_loader, labels=False)
+display_data(10, test_loader, labels=False)
