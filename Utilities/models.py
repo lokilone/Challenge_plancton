@@ -36,7 +36,7 @@ class ModelHandler():
             os.mkdir(top_logdir)
         self.log_path = os.path.join(top_logdir, run_dir)
         # Set Model checkpoint 
-        self.checkpoint = items.ModelCheckpoint(self.log_path + "/best_model.pt", self.model)
+        self.model_checkpoint = items.ModelCheckpoint(self.log_path + "/best_model.pt", self.model)
         # Storage items
         self.summary = None 
         self.predictions = None
@@ -164,6 +164,10 @@ class ModelHandler():
 
             self.model_checkpoint.update(tot_loss/N)
     
+    def load_best(self):
+        self.model.load_state_dict(torch.load(os.path.join(self.log_path, 'best_model.pt')))
+        print(self.model.conv_model)
+
     def predict(self, loader):
         start_time = time.time()
         with torch.no_grad():
@@ -179,10 +183,10 @@ class ModelHandler():
     def label(self, loader): 
         '''Takes an unlabeled data loader and stores the image names and predicted labels'''
         # Get image names
-        dataset = loader.dataset
+        dataset = loader.test_dataset.base_dataset
         self.filenames = [dataset.samples[i][0].split('/')[-1] for i in range(len(dataset))]
         # Get predictions 
-        self.predictios = self.predict(loader)
+        self.predictios = self.predict(loader.test_dataset)
         print("labeled images")
     
     def save_predictions(self):

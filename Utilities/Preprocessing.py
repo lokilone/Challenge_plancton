@@ -30,8 +30,8 @@ class ComposedTransforms():
             'greyscale' : torchvision.transforms.Grayscale(num_output_channels=1),
             'greyscale3' : torchvision.transforms.Grayscale(num_output_channels=3),
             'invert' : torchvision.transforms.functional.invert,
-            'resize' : torchvision.transforms.Resize((300, 300)),
-            'centercrop' : torchvision.transforms.CenterCrop(300),
+            'resize' : torchvision.transforms.Resize((self.imgsize, self.imgsize)),
+            'centercrop' : torchvision.transforms.CenterCrop(self.imgsize),
             'totensor' : torchvision.transforms.ToTensor(),
             'normalization' : torchvision.transforms.Normalize(mean=[self.mean],std=[self.std]),
             'rotate' : torchvision.transforms.RandomRotation((0, 360)),
@@ -173,10 +173,6 @@ class DataLoader(torch.utils.data.dataloader.DataLoader):
         print("The train set contains {} images, in {} batches".format(len(self.test_loader.dataset), len(self.test_loader)))
 
 
-# Little sample to try
-# train_path = "/usr/users/gpusdi1/gpusdi1_49/Bureau/sample_train"
-
-
 ############################
 ### Compute mean and std ###
 ############################
@@ -250,32 +246,35 @@ def display_data(n_samples, loader, labels = True, class_names=np.arange(86)):
         print('Saved Test Images')
 
 
-### Define what transformations you want to make
-# On train and test
-mean = 0.0988
-std = 0.1444
-resize = True
-normalization = True
+# Little sample to try
+# train_path = "/usr/users/gpusdi1/gpusdi1_49/Bureau/sample_train"
 
-# Only on train
-rotate = False
-flip = False
-blur = False
+# ### Define what transformations you want to make
+# # On train and test
+# mean = 0.0988
+# std = 0.1444
+# resize = True
+# normalization = True
 
-Transform = ComposedTransforms(mean = mean, std=std)
-test_composed_transforms = ComposedTransforms().test_transforms()
-train_composed_transforms = ComposedTransforms().train_transforms()
+# # Only on train
+# rotate = False
+# flip = False
+# blur = False
 
-### Load data
-batch_size = 256
+# Transform = ComposedTransforms(mean = mean, std=std)
+# test_composed_transforms = ComposedTransforms().test_transforms()
+# train_composed_transforms = ComposedTransforms().train_transforms()
 
-Data_Loader = DataLoader(batch_size = batch_size)
-Data_Loader.Load_Train_Valid(train_composed_transforms=train_composed_transforms, valid_composed_transforms=test_composed_transforms)
-Data_Loader.Load_Test(test_composed_transforms=test_composed_transforms)
+# ### Load data
+# batch_size = 256
 
-train_loader = Data_Loader.train_loader
-test_loader = Data_Loader.test_loader
+# Data_Loader = DataLoader(batch_size = batch_size)
+# Data_Loader.Load_Train_Valid(train_composed_transforms=train_composed_transforms, valid_composed_transforms=test_composed_transforms)
+# Data_Loader.Load_Test(test_composed_transforms=test_composed_transforms)
 
-### Display data to check that everything is fine
-display_data(10, train_loader, labels=True)
-display_data(10, test_loader, labels=False)
+# train_loader = Data_Loader.train_loader
+# test_loader = Data_Loader.test_loader
+
+# ### Display data to check that everything is fine
+# display_data(10, train_loader, labels=True)
+# display_data(10, test_loader, labels=False)

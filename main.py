@@ -23,6 +23,14 @@ if __name__ == '__main__':
     )
 
     parser.add_argument(
+        '--debug',
+        type=bool,
+        choices=[True, False],
+        required=False,
+        default = False
+    )
+
+    parser.add_argument(
         '--model',
         type=str,
         choices=['custom1', 'custom2', 'minimal', 'minimal_softmax', 'minimal_dropout', 'resnet', 'resnet152', 'vgg', 'vgg19'],
@@ -98,7 +106,10 @@ if __name__ == '__main__':
 
 # Load and preprocess data 
 transforms = Preprocessing.ComposedTransforms()
-dataloader = Preprocessing.DataLoader(valid_ratio=args.valid, num_workers=args.num_workers, batch_size=args.batch_size)
+if args.debug:
+    dataloader = Preprocessing.DataLoader(valid_ratio=args.valid, num_workers=args.num_workers, batch_size=args.batch_size, train_valid_path = "/usr/users/gpusdi1/gpusdi1_49/Bureau/sample_train")
+else:
+    dataloader = Preprocessing.DataLoader(valid_ratio=args.valid, num_workers=args.num_workers, batch_size=args.batch_size)
 train_transforms = transforms.train_transforms(preprocessing_seq=args.preprocessing, augmentation_seq=args.augmentation)
 test_transforms = transforms.train_transforms(preprocessing_seq=args.preprocessing)
 
@@ -109,7 +120,6 @@ if args.mode == 'train':
 
 elif args.mode == 'test':
     dataloader.Load_Test(test_composed_transforms=test_transforms)
-    test_loader = dataloader.test_loader
 
 # Getting model
 handler = models.ModelHandler(model_name = args.model, f_loss=args.loss, optimizer=args.optimizer, run_name=args.run_name, batch_size=args.batch_size)
@@ -128,5 +138,7 @@ if args.mode == "train":
     print('Finished training on {} epochs'.format(args.n_epochs))
 
 elif args.mode == "test":
-    handler.label(test_loader)
+    handler.load_best()
+    handler.label(dataloader)
     handler.save_predictions()
+
