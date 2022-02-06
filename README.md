@@ -29,22 +29,40 @@ Optional run arguments : <br />
    
 ## Structural info
 ```
-project
+final
 │   README.md
-│   file001.txt    
+│   .gitignore
+│   main.py
+│   models.py
+│   preprocessing.py
 │
-└───folder1
-│   │   file011.txt
-│   │   file012.txt
-│   │
-│   └───subfolder1
-│       │   file111.txt
-│       │   file112.txt
-│       │   ...
-│   
-└───folder2
-    │   file021.txt
-    │   file022.txt
+└───Utilities
+    │   README.md
+    │   Class_weight.py   
+    │   receptive_field_calc.py
+    │   items.py
+    │   score_trained_model.py
+│
+└───jobs
+    │   minimal.batch
+    │   resnet.batch
+    │   ...   
+│
+└───logs
+    └───run_minimal
+        │best_model.pt
+        |best_model.pt
+    └───run_resnet
+    ...
+│
+└───submissions
+    │sub1.csv
+    │final_sub.csv
+    |...
+│
+└───logslurms
+│
+└───OLD
   ```
 
    &nbsp;&nbsp;&nbsp;&nbsp;    - _**main.py**_ : main script<br />
