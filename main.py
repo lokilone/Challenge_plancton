@@ -137,9 +137,9 @@ if args.mode == "train":
         start_time = time.time()
         handler.train(train_loader)
         handler.valid(valid_loader)
-        print("Epoch {} time : {}".format(t, time.time() - start_time))
+        print("Epoch {} time :  {}".format(t, time.time() - start_time))
         
-    print('Finished training on {} epochs'.format(args.n_epochs))
+    print('Finished training on {} epochs '.format(args.n_epochs))
 
 elif args.mode == "test":
     handler.load_best()
