@@ -16,9 +16,15 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
 
     parser.add_argument(
-        '--mode',
+        'mode',
         type=str,
         choices=['train', 'test'],
+        required=True
+    )
+
+    parser.add_argument(
+        'path',
+        type=str,
         required=True
     )
 
@@ -84,7 +90,7 @@ if __name__ == '__main__':
     parser.add_argument(
         '--run_name',
         type=str,
-        required=True
+        default='nameless'
     )
 
     parser.add_argument(
@@ -106,19 +112,21 @@ if __name__ == '__main__':
 
 # Load and preprocess data 
 transforms = Preprocessing.ComposedTransforms()
-if args.debug:
-    dataloader = Preprocessing.DataLoader(valid_ratio=args.valid, num_workers=args.num_workers, batch_size=args.batch_size, train_valid_path = "/usr/users/gpusdi1/gpusdi1_49/Bureau/sample_train")
-else:
-    dataloader = Preprocessing.DataLoader(valid_ratio=args.valid, num_workers=args.num_workers, batch_size=args.batch_size)
 train_transforms = transforms.train_transforms(preprocessing_seq=args.preprocessing, augmentation_seq=args.augmentation)
 test_transforms = transforms.train_transforms(preprocessing_seq=args.preprocessing)
 
+if args.debug:
+    data_path = "/usr/users/gpusdi1/gpusdi1_49/Bureau/sample_train" # A small dataset used for debugging 
+else:
+    data_path = args.path
+
 if args.mode == 'train':
+    dataloader = Preprocessing.DataLoader(train_valid_path = data_path, valid_ratio=args.valid, num_workers=args.num_workers, batch_size=args.batch_size)
     dataloader.Load_Train_Valid(train_composed_transforms=train_transforms, valid_composed_transforms=test_transforms)
     train_loader = dataloader.train_loader
     valid_loader = dataloader.valid_loader
-
 elif args.mode == 'test':
+    dataloader = Preprocessing.DataLoader(test_path = data_path, num_workers=args.num_workers, batch_size=args.batch_size)
     dataloader.Load_Test(test_composed_transforms=test_transforms)
 
 # Getting model
@@ -134,7 +142,7 @@ if args.mode == "train":
         handler.train(train_loader)
         handler.valid(valid_loader)
         print("Epoch {} time : {}".format(t, time.time() - start_time))
-
+        
     print('Finished training on {} epochs'.format(args.n_epochs))
 
 elif args.mode == "test":
