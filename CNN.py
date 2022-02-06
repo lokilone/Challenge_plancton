@@ -126,7 +126,7 @@ train_loader = torch.utils.data.DataLoader(dataset=train_dataset,
 valid_loader = torch.utils.data.DataLoader(dataset=valid_dataset,
                                            batch_size=batch_size,
                                            num_workers=num_workers,
-                                           shuffle=True)
+                                           shuffle=False)
 
 # Data Inspect
 print("The train set contains {} images, in {} batches".format(
@@ -232,8 +232,8 @@ class convClassifier(nn.Module):
         output_size = out_size(self.conv_model)
         print(output_size)
 
-        self.fc_model = nn.Sequential(*linear_relu(output_size, 128, 0.2),
-                                      *linear_relu(128, 256, 0.2),
+        self.fc_model = nn.Sequential(*linear_relu(output_size, 128, 0.5),
+                                      *linear_relu(128, 256, 0.5),
                                       *linear_softmax(256, num_classes))
         print("initiated linear model")
 
@@ -301,12 +301,11 @@ def train(model, loader, f_loss, optimizer, device):
         correct += (predicted_targets == targets).sum().item()
 
 
-        if inputs.shape[0]==batch_size :
-            for i in range(86):
-                number_of_target = (targets == i).sum().item()
-                number_of_good_pred = ((predicted_targets == targets)*(targets == i)).sum().item()
-                class_targets[i][0] += number_of_good_pred
-                class_targets[i][1] += number_of_target
+        for i in range(86):
+            number_of_target = (targets == i).sum().item()
+            number_of_good_pred = ((predicted_targets == targets)*(targets == i)).sum().item()
+            class_targets[i][0] += number_of_good_pred
+            class_targets[i][1] += number_of_target
 
     acc_targets = {}
     for i in range(86):
@@ -353,14 +352,13 @@ def test(model, loader, f_loss, device):
             predicted_targets = outputs.argmax(dim=1)
             correct += (predicted_targets == targets).sum().item()
 
-            if inputs.shape[0]==batch_size :
-                for i in range(86):
-                    
-                    number_of_target = (targets == i).sum().item()
-                    number_of_good_pred = ((predicted_targets == targets)*(targets == i)).sum().item()
+            for i in range(86):
+                
+                number_of_target = (targets == i).sum().item()
+                number_of_good_pred = ((predicted_targets == targets)*(targets == i)).sum().item()
 
-                    class_targets[i][0] += number_of_good_pred
-                    class_targets[i][1] += number_of_target
+                class_targets[i][0] += number_of_good_pred
+                class_targets[i][1] += number_of_target
 
         acc_targets = {}
         for i in range(86):
@@ -376,7 +374,7 @@ def test(model, loader, f_loss, device):
 ###############################
 
 def generate_unique_logpath(logdir, raw_run_name):
-    i = "Night_CNN_2"
+    i = "Long_Best_CNN"
     while(True):
         run_name = raw_run_name + "_" + str(i)
         log_path = os.path.join(logdir, run_name)
