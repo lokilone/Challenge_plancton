@@ -93,7 +93,7 @@ if __name__ == '__main__':
         '--preprocessing',
         nargs='*',
         choices=['centercrop', 'resize', 'totensor', 'invert', 'normalization', 'greyscale', 'greyscale3'],
-        default=['greyscale', 'invert', 'centercrop', 'totensor']
+        default=['greyscale', 'invert', 'centercrop', 'totensor', 'normalization']
     )
 
     parser.add_argument(
