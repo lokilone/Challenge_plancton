@@ -1,0 +1,10 @@
+#!/bin/bash 
+
+#SBATCH --job-name=resnet152
+#SBATCH --nodes=1
+#SBATCH --partition=gpu_prod_long
+#SBATCH --time=48:00:00
+#SBATCH --output=../logslurms/resnet152.out
+#SBATCH --error=../logslurms/resnet152.err
+
+python3 ../main.py --mode train --model resnet152 --loss cross_entropy --batch_size=64 --run_name resnet152 --preprocessing greyscale3 invert centercrop totensor

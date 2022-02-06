@@ -1,0 +1,25 @@
+------------------------
+python3 main.py --mode train --model minimal --loss cross_entropy --batch_size=256 --run_name minimal
+------------------------
+python3 main.py --mode train --model minimal_softmax --loss f1 --batch_size=128 --run_name minimal_f1
+------------------------
+python3 main.py --mode train --model minimal --loss cross_entropy --batch_size=256 --run_name minimal_normed
+--preprocessing greyscale invert centercrop totensor normalization
+------------------------
+python3 main.py --mode train --model minimal --loss cross_entropy --batch_size=256 --run_name minimal_sampled
+--sampler True
+------------------------
+python3 main.py --mode train --model minimal --loss cross_entropy --batch_size=256 --run_name minimal_augmented
+--augmentation flip rotate
+------------------------
+python3 main.py --mode train --model resnet --loss cross_entropy --batch_size=64 --run_name resnet
+--preprocessing greyscale3 invert centercrop totensor
+------------------------
+python3 main.py --mode train --model vgg --loss cross_entropy --batch_size=64 --run_name vgg
+--preprocessing greyscale3 invert centercrop totensor
+------------------------
+python3 main.py --mode train --model resnet152 --loss cross_entropy --batch_size=64 --run_name resnet152
+--preprocessing greyscale3 invert centercrop totensor
+------------------------
+python3 main.py --mode train --model vgg19 --loss cross_entropy --batch_size=64 --run_name vgg19
+--preprocessing greyscale3 invert centercrop totensor
