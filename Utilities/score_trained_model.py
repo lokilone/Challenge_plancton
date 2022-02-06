@@ -71,5 +71,5 @@ handler = models.ModelHandler(model_name = args.model, run_name= args.run, batch
 handler.toDevice()
 
 # Main script 
-handler.load_best()
-handler.score(dataloader)
+handler.load_best(args.run)
+handler.score(dataloader.test_loader)

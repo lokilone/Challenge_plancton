@@ -1,8 +1,8 @@
 import argparse
 import logging
 
-from . import models
-from . import Preprocessing
+import models
+import Preprocessing
 
 import sys
 import time

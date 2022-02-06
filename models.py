@@ -35,7 +35,7 @@ class ModelHandler():
         if not os.path.exists(top_logdir):
             os.mkdir(top_logdir)
         self.log_path = os.path.join(top_logdir, run_dir)
-        self.test_path = os.path.join('./jobs', self.log_path)
+        self.test_path = self.log_path
         self.sub_path = './submissions'
         self.run_name = run_name
         # Set Model checkpoint 
@@ -175,7 +175,7 @@ class ModelHandler():
             predictions, labels = [], []
 
             for i, (inputs, targets) in enumerate(tqdm(loader)):
-
+                
                 inputs, targets = inputs.to(self.device), targets.to(self.device)
 
                 # Forward pass
@@ -186,12 +186,18 @@ class ModelHandler():
                 labels += targets
             
             loss = items.F1_Loss()
+
+            predictions = torch.FloatTensor(predictions)
+            targets = torch.FloatTensor(targets)
             score = 1 - loss (predictions, targets)
 
             print(" The f1 score on this model is : {:.4f}".format(score))
     
-    def load_best(self):
-        self.model.load_state_dict(torch.load(os.path.join(self.test_path, 'best_model.pt')))
+    def load_best(self, path=None):
+        if path:
+            self.model.load_state_dict(torch.load(path))
+        else:
+            self.model.load_state_dict(torch.load(os.path.join(self.test_path, 'best_model.pt')))
         print(self.model.conv_model)
 
     def predict(self, loader):
