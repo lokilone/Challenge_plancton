@@ -1,4 +1,4 @@
-['../main.py', '--mode', 'train', '--model', 'resnet', '--loss', 'cross_entropy', '--batch_size=64', '--run_name', 'resnet', '--preprocessing', 'greyscale3', 'invert', 'centercrop', 'totensor']
+['../main.py', '--mode', 'train', '--model', 'vgg', '--loss', 'cross_entropy', '--batch_size=64', '--run_name', 'vgg', '--preprocessing', 'greyscale3', 'invert', 'centercrop', 'totensor']
 Loading Train_Validation set
 Splitting Data
 Transforming Train set
