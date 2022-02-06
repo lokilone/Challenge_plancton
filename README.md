@@ -7,8 +7,8 @@ Current best model is minimal CNN with data augmentation
 Training a model (default is current best) : `python3 main.py train path_to_train`<br />
 Generate test predictions (default model is current best) : `python3 main.py test path_to_test`<br />
 
-Optional run arguments : 
-       * `'--debug'` : This loads a smaller dataset for debug purposes <br />
+Optional run arguments : <br />
+       > `'--debug'` : This loads a smaller dataset for debug purposes <br />
        * `'--model'` : specify model to use from model zoo <br />
               *currently supported : ['custom1', 'custom2', 'minimal', 'minimal_softmax', 'minimal_dropout', 'resnet', 'resnet152', 'vgg', 'vgg19']<br />
        * `'--loss'` : loss function for train. Default is cross entropy<br />
