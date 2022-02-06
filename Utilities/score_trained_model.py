@@ -1,10 +1,12 @@
 import argparse
 import logging
 
+import sys
+import os
+
+sys.path.append(os.path.abspath('../'))
 import models
 import Preprocessing
-
-import sys
 
 if __name__ == '__main__':
 

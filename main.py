@@ -1,10 +1,8 @@
-import torch
 import argparse
 import logging
-import torchvision
 
-from Utilities import models
-from Utilities import Preprocessing
+from . import models
+from . import Preprocessing
 
 import sys
 import time
