@@ -26,7 +26,17 @@ Optional run arguments : <br />
             &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;  - takes any sequence of arguments in ['centercrop', 'resize', 'totensor', 'invert', 'normalization', 'greyscale', 'greyscale3']<br />
             &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;  - default is 'greyscale invert centercrop totensor' <br />
    &nbsp;&nbsp;&nbsp;&nbsp;     `'--augmentation'` : list of data augmentation transformations from ['flip', 'rotate', 'blur']. Default is none<br />
-
+   
+## Structural info
+   &nbsp;&nbsp;&nbsp;&nbsp;     **main.py** : main script<br />
+   &nbsp;&nbsp;&nbsp;&nbsp;     **preprocessing.py** : Handle preprocessing, data augmentation and data loading, called in main<br />
+   &nbsp;&nbsp;&nbsp;&nbsp;     **models.py** : Contains model handler class and the current model zoo<br />
+     &nbsp;&nbsp;&nbsp;&nbsp;    **Utilities** : Complementary python scripts, refer to Utilities/README.md<br />
+   &nbsp;&nbsp;&nbsp;&nbsp;     **jobs** : A directory of bash scripts for running slurm jobs<br />
+   &nbsp;&nbsp;&nbsp;&nbsp;     **logs** : Log directory for runs. Run data can be found under 'logs/run_run_name/'. Contains model summary and best model save<br />
+   &nbsp;&nbsp;&nbsp;&nbsp;     **submissions** : .csv predictions in kaggle challenge format<br />
+   &nbsp;&nbsp;&nbsp;&nbsp;     **logslurms** : Slurm job output and error data. **DO NOT DELETE**, required for slurm jobs<br />
+   &nbsp;&nbsp;&nbsp;&nbsp;     **OLD** : Unused<br />
 ```
 project
 │   README.md
