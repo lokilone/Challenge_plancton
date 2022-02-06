@@ -247,7 +247,7 @@ class convClassifier(nn.Module):
             print(output_size)
             self.fc_model = nn.Sequential(*items.linear_relu(output_size, 128, 0.2),
                                           *items.linear_relu(128, 256, 0.2),
-                                          *nn.Linear(256, num_classes))
+                                          nn.Linear(256, num_classes))
             print("initiated linear model")
         
         elif model_name == 'minimal':
@@ -307,7 +307,7 @@ class convClassifier(nn.Module):
             print(output_size)
             self.fc_model = nn.Sequential(*items.linear_relu(output_size, 128, 0.2),
                                           *items.linear_relu(128, 256, 0.2),
-                                          *nn.Linear(256, num_classes))
+                                          nn.Linear(256, num_classes))
             print("initiated linear model")
         
         elif model_name == 'minimal_softmax':
@@ -348,7 +348,7 @@ class convClassifier(nn.Module):
             print(output_size)
             self.fc_model = nn.Sequential(*items.linear_relu(output_size, 128, 0.2),
                                           *items.linear_relu(128, 256, 0.2),
-                                          *nn.Linear(256, num_classes))
+                                          nn.Linear(256, num_classes))
             print("initiated linear model")
         
         elif model_name == 'resnet152':
@@ -360,7 +360,7 @@ class convClassifier(nn.Module):
             print(output_size)
             self.fc_model = nn.Sequential(*items.linear_relu(output_size, 128, 0.2),
                                           *items.linear_relu(128, 256, 0.2),
-                                          *nn.Linear(256, num_classes))
+                                          nn.Linear(256, num_classes))
             print("initiated linear model")
         
         elif model_name == 'vgg':
@@ -372,7 +372,7 @@ class convClassifier(nn.Module):
             print(output_size)
             self.fc_model = nn.Sequential(*items.linear_relu(output_size, 128, 0.2),
                                           *items.linear_relu(128, 256, 0.2),
-                                          *nn.Linear(256, num_classes))
+                                          nn.Linear(256, num_classes))
             print("initiated linear model")
         
         elif model_name == 'vgg19':
@@ -384,7 +384,7 @@ class convClassifier(nn.Module):
             print(output_size)
             self.fc_model = nn.Sequential(*items.linear_relu(output_size, 128, 0.2),
                                           *items.linear_relu(128, 256, 0.2),
-                                          *nn.Linear(256, num_classes))
+                                          nn.Linear(256, num_classes))
             print("initiated linear model")
         
     def forward(self, x):
