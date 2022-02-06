@@ -75,7 +75,7 @@ final
      
    &nbsp;&nbsp;&nbsp;&nbsp;    - _**jobs**_ : A directory of bash scripts for running slurm jobs<br />
    
-   &nbsp;&nbsp;&nbsp;&nbsp;     - _**logs**_ : Log directory for runs. Run data can be found under 'logs/run_run_name/'. Contains model summary and best model save<br />
+   &nbsp;&nbsp;&nbsp;&nbsp;     - _**logs**_ : Log directory for runs. Run data can be found under 'logs/run_run_name/'. Contains model summary &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;and best model save<br />
    
    &nbsp;&nbsp;&nbsp;&nbsp;     - _**submissions**_ : .csv predictions in kaggle challenge format<br />
    
