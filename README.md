@@ -53,7 +53,7 @@ project
    
    &nbsp;&nbsp;&nbsp;&nbsp;     _**models.py**_ : Contains model handler class and the current model zoo<br />
    
-     &nbsp;&nbsp;&nbsp;&nbsp;    _**Utilities**_ : Complementary python scripts, refer to Utilities/README.md<br />
+   &nbsp;&nbsp;&nbsp;&nbsp;    _**Utilities**_ : Complementary python scripts, refer to Utilities/README.md<br />
      
    &nbsp;&nbsp;&nbsp;&nbsp;     _**jobs**_ : A directory of bash scripts for running slurm jobs<br />
    
