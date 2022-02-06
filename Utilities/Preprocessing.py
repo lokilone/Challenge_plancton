@@ -280,7 +280,7 @@ def display_data(n_samples, loader, labels = True, class_names=np.arange(86)):
 # display_data(10, train_loader, labels=True)
 # display_data(10, test_loader, labels=False)
 
-Data_Loader = DataLoader()
-Data_Loader.Load_Train_Valid()
-valid_loader = Data_Loader.valid_loader
-mean, std = compute_global_mean_std(valid_loader)
+# Data_Loader = DataLoader()
+# Data_Loader.Load_Train_Valid()
+# valid_loader = Data_Loader.valid_loader
+# mean, std = compute_global_mean_std(valid_loader)
