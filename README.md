@@ -1,7 +1,7 @@
 # Challenge_plancton
 This is a challenge on kaggle. 
 
-Current best model is minimal CNN with data augmentation
+Current best model is minimal CNN with data augmentation and normalization (specify --run_name minimal_normed_augmented in a test run to load it pretrained)
 
 ## Running a job
 Training a model (default is current best) : `python3 main.py train path_to_train`<br />
